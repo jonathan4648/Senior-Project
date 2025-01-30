@@ -6,11 +6,12 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { TextInput } from 'react-native-gesture-handler'
 import { router } from 'expo-router'
 import {db} from '../FirebaseConfig';
-
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
 
 const index = () => {
   const [email, setEmail] = useState('');
   const [password,setPassword] = useState('');
+  const userCollection = collection(db, 'users');
 
   const signIn = async () => {
     try {
@@ -25,7 +26,14 @@ const index = () => {
   const signUp = async () => {
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/(tabs)');
+      if (user) {
+        const docRef = doc(collection(db, 'users'), auth.currentUser?.uid);
+        var data = {
+          email: user.user.email
+        }
+        await setDoc(docRef, data);
+        router.replace('/(tabs)');
+      }
     } catch (error: any) {
       console.log(error)
       alert('Sign in failed: '+ error.message);
