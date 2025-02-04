@@ -85,7 +85,7 @@ export default function TabTwoScreen() {
           renderItem={({ item }) => (
             <View style={styles.todoContainer}>
               <Text style={{ textDecorationLine: item.completed ? 'line-through' : 'none', flex: 1 }}>{item.task}</Text>
-              <Text style={{ fontSize: 12, color: '#666' }}>Priority: {item.priority}</Text>
+              <Text style={{ fontSize: 12, color: '#666',flex: 0.5}}>Priority: {item.priority}</Text>
               <TouchableOpacity 
               style={styles.PriButton} 
               onPress={() => {
@@ -180,6 +180,7 @@ const styles = StyleSheet.create({
     padding: 10,
     flex: 1, // Adjusted to take available space
     marginRight: 10, // Add margin to separate input and button
+    marginBottom: 10, // Add margin to separate input and list
   },
   addButton: {
     padding: 10,
@@ -194,8 +195,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   PriButton: {
-    padding: 10,
-    borderRadius: 20,
+    padding: 7,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#5C6BC0', 
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 10,
     fontWeight: '600',
   },
   todoContainer: {
@@ -229,12 +230,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 6,
     width: '100%',
   },
   button: {
-    padding: 10,
-    borderRadius: 15,
+    padding: 7,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#5C6BC0',
@@ -243,6 +244,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 5,
     elevation: 5,
-    marginLeft: 10,
+    marginLeft: 3,
   },
 });
