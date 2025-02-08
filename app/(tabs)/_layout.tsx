@@ -40,6 +40,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="create_task"
+        options={{
+          title: 'Create Task',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',

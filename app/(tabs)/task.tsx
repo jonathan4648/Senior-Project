@@ -2,6 +2,7 @@ import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, 
 import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
 import { Picker } from '@react-native-picker/picker';
+import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -15,7 +16,6 @@ export default function TabTwoScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedPriority, setSelectedPriority] = useState("Low");
-
 
   useEffect(() => {
     fetchTodos();
@@ -33,8 +33,9 @@ export default function TabTwoScreen() {
 
   const addTodo = async () => {
     if (user) {
-      await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
-      setTask('');
+      router.replace('/(tabs)/create_task');
+      //await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
+      //setTask('');
       fetchTodos();
     } else {
       console.log("No user logged in");
