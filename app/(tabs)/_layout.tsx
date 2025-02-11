@@ -40,9 +40,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="create_task"
+        name="notification_center"
         options={{
-          title: 'Create Task',
+          title: 'Notifaications',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
