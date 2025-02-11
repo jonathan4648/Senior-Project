@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
-import { Card } from "react-native-ui-lib";
-import { Button } from "./components/ui/Button";
+import { Card } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { Bell, CheckCircle } from "lucide-react-native";
 
 interface Notification {
