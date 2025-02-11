@@ -33,9 +33,8 @@ export default function TabTwoScreen() {
 
   const addTodo = async () => {
     if (user) {
-      router.replace('/(tabs)/create_task');
-      //await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
-      //setTask('');
+      await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
+      setTask('');
       fetchTodos();
     } else {
       console.log("No user logged in");
