@@ -2,7 +2,6 @@ import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, 
 import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
 import { Picker } from '@react-native-picker/picker';
-import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -16,6 +15,11 @@ export default function TabTwoScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedPriority, setSelectedPriority] = useState("Low");
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [newEventTitle, setNewEventTitle] = useState('');
+    const [newEventPriority, setNewEventPriority] = useState('Low');
+
+
 
   useEffect(() => {
     fetchTodos();
@@ -33,9 +37,9 @@ export default function TabTwoScreen() {
 
   const addTodo = async () => {
     if (user) {
-      router.replace('/(tabs)/create_task');
-      //await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
-      //setTask('');
+      await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
+      setTask('');
+      setNewEventPriority('low')
       fetchTodos();
     } else {
       console.log("No user logged in");
@@ -54,31 +58,92 @@ export default function TabTwoScreen() {
     fetchTodos();
   };
 
-  const updatePriority = async (id: string, newPriority: string) => {
-    try {
-      const todoDoc = doc(db, 'todos', id);
-      await updateDoc(todoDoc, { priority: newPriority });
-      fetchTodos(); // Refresh the list to show updated priority
-    } catch (error) {
-      console.error("Error updating priority:", error);
-    }
-  };
+  //change priority 
+    const updatePriority = async (id: string, NewEventPriority: string) => {
+        try {
+            const todoDoc = doc(db, 'todos', id);
+            await updateDoc(todoDoc, { priority: NewEventPriority });
+            fetchTodos(); // Refresh the list to show updated priority
+        } catch (error) {
+            console.error("Error updating priority:", error);
+        }
+    };
+    //open menu
+    const toggleMenu = () => {
+        console.log("Toggling menu visibility from:", menuVisible);
+        setMenuVisible(prevState => !prevState);
+    };
+
+    const AddandClose = () => {
+        addTodo(); // Call your addTodo function
+        toggleMenu(); // Call your toggleMenu function
+    };
   
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.mainTitle}>Todo List</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="New Task"
-            value={task}
-            onChangeText={(text) => setTask(text)}
-            style={styles.input}
-          />
-
-          <TouchableOpacity style={styles.addButton} onPress={addTodo}>
-            <Text style={styles.buttonText}>Add</Text>
+      <SafeAreaView style={styles.safeArea}>
+            
+              <View>
+                  <TouchableOpacity
+                      style={styles.add_event_button}
+                      onPress={() => {
+                          
+                              toggleMenu();// Ensure toggleMenu function is defined to handle this logic
+                      }}
+                  >
+                      <Text style={styles.buttonText}>Create Event</Text>
           </TouchableOpacity>
+          </View>
+          {menuVisible && (
+              <View style={styles.menuContainer}>
+                  <View style={styles.inputContainer}>
+                  <TextInput
+                      placeholder="New Task"
+                      value={task}
+                      onChangeText={(text) => setTask(text)}
+                      style={styles.input}
+                      />
+                    </View>
+                  <View style={styles.inputContainer}>
+                  <TextInput
+                      placeholder="date"
+                      value={newEventTitle}
+                      onChangeText={setNewEventTitle}
+                      style={styles.input}
+                      />
+                    </View>
+                  <View style={styles.inputContainer}>
+                  <TextInput
+                      placeholder="time"
+                      value={newEventTitle}
+                      onChangeText={setNewEventTitle}
+                      style={styles.input}
+                      />
+                  </View>
+
+                  <View>
+                      <Picker
+                          selectedValue={newEventPriority} // Bind to newEventPriority
+                          onValueChange={(itemValue) => setNewEventPriority(itemValue)}
+                          style={{ height: 150, width: 200 }}
+                      >
+                          <Picker.Item label="Low" value="Low" />
+                          <Picker.Item label="Medium" value="Medium" />
+                          <Picker.Item label="High" value="High" />
+                          </Picker>
+                  </View>
+
+                  <TouchableOpacity style={styles.addButton} onPress={AddandClose}>
+                      <Text style={styles.buttonText}>Add</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.button} onPress={toggleMenu}>
+                      <Text style={styles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+              </View>
+          )}
+
+      <View style={styles.container}>
+              <Text style={styles.mainTitle}>Todo List</Text>
+        <View style={styles.inputContainer}>
         </View>
 
         <FlatList
@@ -104,9 +169,12 @@ export default function TabTwoScreen() {
                 <Text style={styles.buttonText}>Delete</Text>
               </TouchableOpacity>
             </View>
+
           )}
           keyExtractor={(item) => item.id}
-        />
+              />
+
+        {/* opens up priority menu */ }
         <Modal visible={modalVisible} animationType="slide" transparent={false} > 
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -146,7 +214,8 @@ export default function TabTwoScreen() {
 
           </View>
         </View>
-        </Modal>
+              </Modal>
+
       </View>
     </SafeAreaView>
   );
@@ -246,5 +315,40 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     marginLeft: 3,
-  },
+    },
+    add_event_button: {
+        padding: 7,
+        borderRadius: 18,
+        marginLeft: 4,
+        margin: 5,
+        bottom: -690,
+        alignItems: 'center',
+        backgroundColor: '#CBC3E3',
+    },
+     menuContainer: {
+         backgroundColor: 'white',
+         padding: 20, // Adjust padding as needed
+         // Remove borderWidth and borderColor if you don't want them
+         // borderWidth: 1,
+         // borderColor: '#ccc',
+         borderRadius: 0, // Or keep a small radius if desired
+         position: 'absolute', // Important for full-screen
+         top: 0,          // Top edge of the screen
+         left: 0,         // Left edge of the screen
+         right: 0,        // Right edge of the screen
+         bottom: 0,       // Bottom edge of the screen
+         width: '100%',     // Take full width (you might not need this since left/right are 0)
+         height: '100%',    // Take full height (you might not need this since top/bottom are 0)
+         zIndex: 1000,      // Ensure it's on top
+         justifyContent: 'center', // Center content vertically
+         alignItems: 'center',
+    },
+    menuItem: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 6,
+        width: '100%',
+    },
 });
