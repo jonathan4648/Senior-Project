@@ -5,6 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { Calendar } from 'react-native-calendars';
 
 export default function TabTwoScreen() {
   const [task, setTask] = useState('');
@@ -18,6 +19,8 @@ export default function TabTwoScreen() {
   const [selectedPriority, setSelectedPriority] = useState("Low");
     const [menuVisible, setMenuVisible] = useState(false);
     const [newEventTitle, setNewEventTitle] = useState('');
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10)); // Initialize with today's date (YYYY-MM-DD)
+    const [showCalendar, setShowCalendar] = useState(false);
 
 
   useEffect(() => {
@@ -36,9 +39,15 @@ export default function TabTwoScreen() {
 
   const addTodo = async () => {
     if (user) {
-      await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
+        await addDoc(todosCollection, {
+            task, completed: false,
+            userId: user.uid,
+            priority: selectedPriority,
+            date : selectedDate
+        });
       setTask('');
-      setNewEventPriority('low')
+        setSelectedPriority('low')
+        setSelectedDate(new Date().toISOString().slice(0, 10));
       fetchTodos();
     } else {
       console.log("No user logged in");
@@ -58,10 +67,10 @@ export default function TabTwoScreen() {
   };
 
   //change priority 
-    const updatePriority = async (id: string, NewEventPriority: string) => {
+    const updatePriority = async (id: string, setEventPriority: string) => {
         try {
             const todoDoc = doc(db, 'todos', id);
-            await updateDoc(todoDoc, { priority: NewEventPriority });
+            await updateDoc(todoDoc, { priority: setEventPriority });
             fetchTodos(); // Refresh the list to show updated priority
         } catch (error) {
             console.error("Error updating priority:", error);
@@ -77,7 +86,12 @@ export default function TabTwoScreen() {
         addTodo(); // Call your addTodo function
         toggleMenu(); // Call your toggleMenu function
     };
-  
+
+    //date selection
+    const onDayPress = (day) => {
+        setSelectedDate(day.dateString); // Update selectedDate with the YYYY-MM-DD string
+        //setShowCalendar(true); // Hide the calendar after selection
+    };
   return (
       <SafeAreaView style={styles.safeArea}>
             
@@ -89,7 +103,7 @@ export default function TabTwoScreen() {
                               toggleMenu();// Ensure toggleMenu function is defined to handle this logic
                       }}
                   >
-                      <Text style={styles.buttonText}>Create Event</Text>
+                      <Text style={styles.buttonText}>Create Event</Text> 
           </TouchableOpacity>
           </View>
           {menuVisible && (
@@ -101,15 +115,9 @@ export default function TabTwoScreen() {
                       onChangeText={(text) => setTask(text)}
                       style={styles.input}
                       />
-                    </View>
-                  <View style={styles.inputContainer}>
-                  <TextInput
-                      placeholder="date"
-                      value={newEventTitle}
-                      onChangeText={setNewEventTitle}
-                      style={styles.input}
-                      />
-                    </View>
+                  </View>
+
+                 
                   <View style={styles.inputContainer}>
                   <TextInput
                       placeholder="time"
@@ -118,11 +126,27 @@ export default function TabTwoScreen() {
                       style={styles.input}
                       />
                   </View>
+                  {showCalendar && (
+                      <Calendar
+                          onDayPress={onDayPress}
+                          style={styles.calendar}
+                          markedDates={{
+                              [selectedDate]: { selected: true, selectedColor: 'blue' }, // Mark the selected date
+                          }}
+                          theme={{
+                              // Customize calendar appearance (optional)
+                              todayTextColor: 'red',
+                              dayTextColor: 'black',
+                              monthTextColor: 'blue',
+                              // ... other theme properties
+                          }}
+                      />
+                  )}
 
                   <View>
                       <Picker
-                          selectedValue={newEventPriority} // Bind to newEventPriority
-                          onValueChange={(itemValue) => setNewEventPriority(itemValue)}
+                          selectedValue={selectedPriority} // Bind to newEventPriority
+                          onValueChange={(itemValue) => setSelectedPriority(itemValue)}
                           style={{ height: 150, width: 200 }}
                       >
                           <Picker.Item label="Low" value="Low" />
@@ -150,7 +174,10 @@ export default function TabTwoScreen() {
           renderItem={({ item }) => (
             <View style={styles.todoContainer}>
               <Text style={{ textDecorationLine: item.completed ? 'line-through' : 'none', flex: 1 }}>{item.task}</Text>
-              <Text style={{ fontSize: 12, color: '#666',flex: 0.5}}>Priority: {item.priority}</Text>
+                  <Text style={{ fontSize: 12, color: '#666', flex: 0.5 }}>Priority: {item.priority}</Text>
+                  <Text style={{ fontSize: 12, color: '#666', flex: 0.5 }}>
+                      Date: {item.date} {/* Display the date (already in YYYY-MM-DD format) */}
+                  </Text>
               <TouchableOpacity 
               style={styles.PriButton} 
               onPress={() => {
@@ -324,6 +351,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#CBC3E3',
     },
+    add_date_button: {
+        padding: 7,
+        borderRadius: 18,
+        marginLeft: 4,
+        margin: 5,
+        alignItems: 'center',
+        backgroundColor: '#CBC3E3',
+    },
      menuContainer: {
          backgroundColor: 'white',
          padding: 20, // Adjust padding as needed
@@ -349,5 +384,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginVertical: 6,
         width: '100%',
+    },
+    calendar: {
+        width: 300, // Adjust width as needed
+        marginTop: 10,
     },
 });
