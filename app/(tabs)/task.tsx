@@ -2,6 +2,7 @@ import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, 
 import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
 import { Picker } from '@react-native-picker/picker';
+import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -17,8 +18,6 @@ export default function TabTwoScreen() {
   const [selectedPriority, setSelectedPriority] = useState("Low");
     const [menuVisible, setMenuVisible] = useState(false);
     const [newEventTitle, setNewEventTitle] = useState('');
-    const [newEventPriority, setNewEventPriority] = useState('Low');
-
 
 
   useEffect(() => {
