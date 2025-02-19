@@ -1,9 +1,13 @@
+// modules and components imported from react-native & react
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View, Modal} from 'react-native';
 import React, { useState, useEffect } from 'react';
+// project db and firestore imported from FirebaseConfig 
 import { db } from '../../FirebaseConfig';
+// tools imported from firebase/firestore and firebase/auth 
 import { Picker } from '@react-native-picker/picker';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { fetchTodos } from './firebaseUtils'; // Adjust the path as needed
 
 export default function TabTwoScreen() {
   const [task, setTask] = useState('');
@@ -18,46 +22,57 @@ export default function TabTwoScreen() {
 
 
   useEffect(() => {
-    fetchTodos();
+    if (user) {
+      fetchTodos(user.uid).then(setTodos);
+    }
   }, [user]);
 
+
+  /*
   const fetchTodos = async () => {
     if (user) {
       const q = query(todosCollection, where("userId", "==", user.uid));
       const data = await getDocs(q);
-      setTodos(data.docs.map((doc) => ({ ...doc.data(), id: doc.id,  priority: doc.data().priority || 'Low'})));
+      const todosData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id, priority: doc.data().priority || 'Low' }));
+      setTodos(todosData);
     } else {
       console.log("No user logged in");
     }
   };
-
+  */
   const addTodo = async () => {
     if (user) {
       await addDoc(todosCollection, { task, completed: false, userId: user.uid ,priority});
       setTask('');
-      fetchTodos();
+      fetchTodos(user.uid).then(setTodos);
     } else {
       console.log("No user logged in");
     }
   };
 
   const updateTodo = async (id: string, completed: any) => {
+    if (user){
     const todoDoc = doc(db, 'todos', id);
     await updateDoc(todoDoc, { completed: !completed });
-    fetchTodos();
+    fetchTodos(user.uid).then(setTodos);
+    }
   };
 
   const deleteTodo = async (id: string) => {
+    if (user){
     const todoDoc = doc(db, 'todos', id);
     await deleteDoc(todoDoc);
-    fetchTodos();
+    fetchTodos(user.uid).then(setTodos);
+    }
   };
 
   const updatePriority = async (id: string, newPriority: string) => {
     try {
+      if (user){
       const todoDoc = doc(db, 'todos', id);
       await updateDoc(todoDoc, { priority: newPriority });
-      fetchTodos(); // Refresh the list to show updated priority
+      fetchTodos(user.uid).then(setTodos); // Refresh the list to show updated priority
+      }
     } catch (error) {
       console.error("Error updating priority:", error);
     }
