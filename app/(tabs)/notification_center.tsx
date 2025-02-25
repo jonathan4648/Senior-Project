@@ -2,7 +2,7 @@ import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, 
 import React, { useState } from "react";
 import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
-import { Bell, CheckCircle } from "lucide-react-native";
+import { Bell, CheckCircle, Trash2 } from "lucide-react-native";
 
 interface Notification {
   id: string;
@@ -15,6 +15,10 @@ const NotificationCenter: React.FC = () => {
     { id: "1", message: "Welcome to the app!", read: false },
     { id: "2", message: "You have an appointment in 5 minutes", read: false },
   ]);
+
+  const deleteNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+  };
 
   const markAsRead = (id: string) => {
     setNotifications((prev) =>
@@ -55,6 +59,18 @@ const NotificationCenter: React.FC = () => {
                       <Text style={{ marginLeft: 4, color: "blue" }} className="text-sm">Mark as read</Text>
                     </TouchableOpacity>
                 )}
+                  <TouchableOpacity
+                    onPress={() => deleteNotification(item.id)}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      padding: 4,
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Trash2 size={24} color="gray" />
+                    <Text style={{ marginLeft: 4, color: "gray" }}>Delete</Text>
+                  </TouchableOpacity>
                 </View>
             </Card>
             )}
