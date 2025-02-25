@@ -47,9 +47,12 @@ const NotificationCenter: React.FC = () => {
                 <View className="flex-row justify-between items-center">
                 <Text className="text-lg">{item.message}</Text>
                 {!item.read && (
-                    <TouchableOpacity onPress={() => markAsRead(item.id)}>
-                    <CheckCircle size={24} color="blue" /> 
-                        <Text className="text-sm">Mark as read</Text>
+                    <TouchableOpacity 
+                      onPress={() => markAsRead(item.id)}
+                      style={{ flexDirection:"row", alignItems:"center" }}
+                    >
+                      <CheckCircle size={24} color="blue" /> 
+                      <Text style={{ marginLeft: 4, color: "blue" }} className="text-sm">Mark as read</Text>
                     </TouchableOpacity>
                 )}
                 </View>
