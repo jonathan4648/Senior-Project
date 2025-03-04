@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
 // tools imported from firebase/firestore and firebase/auth 
 import { Picker } from '@react-native-picker/picker';
+import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { fetchTodos } from './firebaseUtils'; // Adjust the path as needed
@@ -19,7 +20,6 @@ export default function TabTwoScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedPriority, setSelectedPriority] = useState("Low");
-
 
   useEffect(() => {
     if (user) {
