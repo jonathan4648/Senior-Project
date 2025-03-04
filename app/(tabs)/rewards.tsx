@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
@@ -54,52 +54,55 @@ export default function RewardsTabScreen() {
     { id: 3, title: 'Reward 3: 500 Points', points: 500, icon: 'diamond', color: '#00BFFF' },
   ];
 
-  // Handle claiming a reward and updating points
-  const handleClaim = (rewardPoints: number, rewardIcon: 'star' | 'medal' | 'diamond') => {
-    // Check if user has enough points to claim the reward
-    if (userPoints >= rewardPoints) {
-      // Deduct points from the user
-      setUserPoints((prevPoints) => prevPoints - rewardPoints);
+  // Optimized handleClaim function using useCallback
+  const handleClaim = useCallback(
+    (rewardPoints: number, rewardIcon: 'star' | 'medal' | 'diamond') => {
+      // Check if user has enough points to claim the reward
+      if (userPoints >= rewardPoints) {
+        // Deduct points from the user
+        setUserPoints((prevPoints) => prevPoints - rewardPoints);
 
-      // Update the claimed rewards count for the specific icon
-      setClaimedRewards((prevRewards) => ({
-        ...prevRewards,
-        [rewardIcon]: prevRewards[rewardIcon] + 1,
-      }));
+        // Update the claimed rewards count for the specific icon
+        setClaimedRewards((prevRewards) => ({
+          ...prevRewards,
+          [rewardIcon]: prevRewards[rewardIcon] + 1,
+        }));
 
-      // Trigger confetti animation
-      setConfettiVisible(true);
+        // Trigger confetti animation
+        setConfettiVisible(true);
 
-      // Show the reward claimed banner with fade-in animation
-      setBannerVisible(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1, // Fade in the banner
-        duration: 500, // Duration of the animation
-        useNativeDriver: true, // Use native driver for better performance
-      }).start();
-
-      // Hide the Reward Claimed banner after 2 seconds with a fade-out animation
-      setTimeout(() => {
+        // Show the reward claimed banner with fade-in animation
+        setBannerVisible(true);
         Animated.timing(fadeAnim, {
-          toValue: 0, // Fade out the banner
-          duration: 500,
-          useNativeDriver: true,
+          toValue: 1, // Fade in the banner
+          duration: 500, // Duration of the animation
+          useNativeDriver: true, // Use native driver for better performance
         }).start();
-        setBannerVisible(false); // Hide the banner
-      }, 5000);
 
-      // Hide the confetti after 20 seconds (when animation finishes)
-      setTimeout(() => {
-        setConfettiVisible(false);
-      }, 10000);
+        // Hide the Reward Claimed banner after 2 seconds with a fade-out animation
+        setTimeout(() => {
+          Animated.timing(fadeAnim, {
+            toValue: 0, // Fade out the banner
+            duration: 500,
+            useNativeDriver: true,
+          }).start();
+          setBannerVisible(false); // Hide the banner
+        }, 5000);
 
-      // Show a success alert
-      Alert.alert('Congrats!', 'Enjoy your reward!');
-    } else {
-      // If not enough points, show an error alert
-      Alert.alert('Insufficient Points', "You don't have enough points for this reward.");
-    }
-  };
+        // Hide the confetti after 5 seconds (when animation finishes)
+        setTimeout(() => {
+          setConfettiVisible(false);
+        }, 5000);
+
+        // Show a success alert
+        Alert.alert('Congrats!', 'Enjoy your reward!');
+      } else {
+        // If not enough points, show an error alert
+        Alert.alert('Insufficient Points', "You don't have enough points for this reward.");
+      }
+    },
+    [userPoints, fadeAnim] // Dependencies: only change when userPoints or fadeAnim changes
+  );
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -155,7 +158,14 @@ export default function RewardsTabScreen() {
         </View>
 
         {/* Confetti animation */}
-        {confettiVisible && <ConfettiCannon count={200} origin={{ x: 0, y: 0 }} fadeOut={true} />}
+        {confettiVisible && (
+          <ConfettiCannon
+            count={100} // Reduced number of confetti particles
+            origin={{ x: 0, y: 0 }}
+            fadeOut={true}
+            key={confettiVisible ? 'confetti-active' : 'confetti-inactive'} // Ensures reset when visibility changes
+          />
+        )}
 
         {/* Reward claimed banner */}
         {bannerVisible && (
@@ -299,6 +309,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 
 
