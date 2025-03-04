@@ -1,23 +1,45 @@
-import {StyleSheet, TouchableOpacity,Text, View} from 'react-native';
+import {StyleSheet, TouchableOpacity,Text, View, Button} from 'react-native';
 import { auth} from '@/FirebaseConfig';
 import { getAuth } from 'firebase/auth'
 import { router }  from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useNavigation, DrawerActions, NavigationContainer} from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import DrawerItems from '@/constants/DrawerItems';
+import Saved from '@/screens/Saved';
+import Today from '@/screens/Today';
+import Settings from '@/screens/Settings';
+import Refer from '@/screens/Refer';
+import { Feather } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
+
 
 export default function TabOneScreen(){
+    const navigation = useNavigation();
 
     getAuth().onAuthStateChanged((user) => {
         if (!user) router.replace('/');
     });
+
+    const openMenu = () => {
+      console.log('Menu pressed');
+    };
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Homepage</Text>
+        <View style={styles.container2}>
+          <Text style={styles.title}>Homepage</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAFAFA', // A softer white for a modern, minimalist background
+  },
+  container2: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -46,7 +68,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4, // Slightly elevated for a subtle 3D effect
   },
-  button: {
+  menuButton: {
     width: '90%',
     marginVertical: 15,
     backgroundColor: '#5C6BC0', // A lighter indigo to complement the title color
@@ -64,5 +86,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF', // Maintained white for clear visibility
     fontSize: 18, // Slightly larger for emphasis
     fontWeight: '600', // Semi-bold for a balanced weight
-  }
+  },
 });

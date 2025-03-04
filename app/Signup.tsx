@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, Touchable, TouchableOpacity, StyleSheet, Keyboard } from 'react-native'
+import {View, Text, Button, SafeAreaView, Touchable, TouchableOpacity, StyleSheet, Keyboard } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import React, { useState }from 'react'
 import { auth } from '../FirebaseConfig'
@@ -8,27 +8,28 @@ import { router } from 'expo-router'
 import {db} from '../FirebaseConfig';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-
-
 const index = () => {
   const [email, setEmail] = useState('');
   const [password,setPassword] = useState('');
+  const [Firstname,setFname] = useState('');
+  const [Lastname, setLname] = useState('');
   const userCollection = collection(db, 'users');
 
-  const signIn = async () => {
-    try {
-      const user = await signInWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/(tabs)/home');
-    } catch (error: any) {
-      console.log(error)
-      alert('Sign in failed: Email and password does not exist');
-    }
-  }
 
   const signUp = async () => {
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/Signup');
+      //const user = userCredential.user;
+      if (user) {
+        const docRef = doc(collection(db, 'users'), auth.currentUser?.uid);
+        var data = {
+            email: email,
+            Firstname: Firstname,
+            Lastname: Lastname,
+        }
+        await setDoc(docRef, data);
+        router.replace('/(tabs)/home');
+      }
     } catch (error: any) {
       console.log(error)
       alert('Sign up failed: '+ error.message);
@@ -52,17 +53,14 @@ const index = () => {
       fontFamily: "", // Use a fun font for a modern look
     },
     input: {
-      width: '80%', // Set width to 80% of the container
+      width: '70%', // Set width to 80% of the container
       padding: 10, // Add padding inside the input
       marginVertical: 10, // Add vertical margin for spacing
       borderWidth: 1, // Add border width
       borderBlockColor: '#6F2DA8', // Set border color to light purple
       borderColor: '#6F2DA8', // Set border color to light grey
       borderRadius: 5, // Add border radius for rounded corners
-      flexDirection: 'row'
-    },
-    mailIcon:{
-      flexDirection: 'row'
+      flexDirection: "row"
     },
     button: {
       backgroundColor: '#007BFF', // Set button background color to blue
@@ -81,31 +79,41 @@ const index = () => {
   return(
     <GestureHandlerRootView>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>ToDo App</Text>
+        <Button title="< Go back" onPress={() => router.replace('/')} />
+        <Text style={styles.title}>Sign up page</Text>
 
         <View style={styles.input}>
-        <MaterialCommunityIcons name="email-outline" size={24} color="gray" />
-        <TextInput
-          style={styles.mailIcon} 
+        <TextInput 
+          placeholder=" First Name" 
+          value={Firstname} 
+          onChangeText={setFname}
+        />
+        </View>
+        <View style={styles.input} >
+        <TextInput 
+          placeholder=" Last name" 
+          value={Lastname} 
+          onChangeText={setLname}
+        />
+        </View>
+        <View style={styles.input}>
+        <MaterialCommunityIcons name="email-outline" size={20} color="gray" />
+        <TextInput 
           placeholder=" Email" 
           value={email} 
           onChangeText={setEmail}
         />
         </View>
-
         <View style={styles.input}>
-        <MaterialCommunityIcons name="lock" size={24} color="gray" />
+        <MaterialCommunityIcons name="lock" size={20} color="gray" />
         <TextInput 
-          placeholder=' Password' 
+          placeholder='  Password' 
           value={password} 
           onChangeText={setPassword} 
           secureTextEntry
         />
         </View>
-        <TouchableOpacity style={styles.button} onPress={signIn}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => router.replace('/Signup')}>
+        <TouchableOpacity style={styles.button} onPress={signUp}>
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
       </SafeAreaView>
