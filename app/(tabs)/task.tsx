@@ -8,7 +8,7 @@ import { getAuth } from 'firebase/auth';
 import { Calendar } from 'react-native-calendars';
 import * as Location from 'expo-location';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDamfZckYnYMJAPCf3w0t4PUX4mQstsBSQ';
+const GOOGLE_MAPS_API_KEY = '';
 
 export default function TabTwoScreen() {
   const [task, setTask] = useState('');
