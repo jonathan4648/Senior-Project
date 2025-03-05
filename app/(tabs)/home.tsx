@@ -6,11 +6,22 @@ import { fetchTodos } from './firebaseUtils'; // Adjust the path as needed
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { db } from '../../FirebaseConfig';
-import {StyleSheet, TouchableOpacity,Text, View, FlatList} from 'react-native';
+import {StyleSheet, TouchableOpacity,Text, View, FlatList, Button} from 'react-native';
 import { auth} from '@/FirebaseConfig';
 import { getAuth } from 'firebase/auth'
 import { router }  from 'expo-router';
 //import { FlatList, } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useNavigation, DrawerActions, NavigationContainer} from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import DrawerItems from '@/constants/DrawerItems';
+import Saved from '@/screens/Saved';
+import Today from '@/screens/Today';
+import Settings from '@/screens/Settings';
+import Refer from '@/screens/Refer';
+import { Feather } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 /**
  * @function TabOneScreen
@@ -19,7 +30,7 @@ import { router }  from 'expo-router';
  */
 /*
 export default function TabOneScreen(){
-
+    const navigation = useNavigation();
   getAuth().onAuthStateChanged((user) => {
     if (!user) router.replace('/');
   });
@@ -55,7 +66,6 @@ export default function TabOneScreen(){
     />
     </View>
   );
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -108,7 +118,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4, // Slightly elevated for a subtle 3D effect
   },
-  button: {
+  menuButton: {
     width: '90%',
     marginVertical: 15,
     backgroundColor: '#5C6BC0', // A lighter indigo to complement the title color
