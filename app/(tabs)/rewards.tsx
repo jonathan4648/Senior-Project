@@ -8,7 +8,7 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function RewardsTabScreen() {
   // State to store the current user's points
-  const [userPoints, setUserPoints] = useState(1500);
+  const [userPoints, setUserPoints] = useState(500);
 
   // State to track claimed rewards (star, medal, diamond)
   const [claimedRewards, setClaimedRewards] = useState<{ [key: string]: number }>({
@@ -139,7 +139,7 @@ export default function RewardsTabScreen() {
         {/* Rewards List - Display each available reward */}
         <View style={styles.rewardsContainer}>
           {rewards.map((reward) => (
-            <TouchableOpacity key={reward.id} style={styles.rewardCard}>
+            <View key={reward.id} style={styles.rewardCard}>
               {/* Reward icon */}
               <Ionicons name={reward.icon} size={30} color={reward.color} style={styles.icon} />
 
@@ -153,7 +153,7 @@ export default function RewardsTabScreen() {
               >
                 <Text style={styles.claimButtonText}>Claim</Text>
               </TouchableOpacity>
-            </TouchableOpacity>
+            </View>
           ))}
         </View>
 
@@ -309,6 +309,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 
 
