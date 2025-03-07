@@ -5,6 +5,7 @@ interface ButtonProps extends TouchableOpacityProps {
   children: React.ReactNode;
 }
 
+//Prop that carries information for the button component
 const Button: React.FC<ButtonProps> = ({ children, style, ...props }) => {
   return (
     <TouchableOpacity

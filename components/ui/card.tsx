@@ -5,6 +5,7 @@ interface CardProps extends ViewProps {
   children: React.ReactNode;
 }
 
+//Prop that carries information for the card component
 const Card: React.FC<CardProps> = ({ children, style, ...props }) => {
   return (
     <View

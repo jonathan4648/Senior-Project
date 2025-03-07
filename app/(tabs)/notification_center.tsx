@@ -4,23 +4,29 @@ import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
 import { AlignRight, Bell, CheckCircle, Trash2 } from "lucide-react-native";
 
+//Data fields required for each notification
 interface Notification {
   id: string;
   message: string;
   read: boolean;
 }
 
+//Initialize notification center with temporary notifications
 const NotificationCenter: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: "1", message: "Welcome to the app!", read: false },
     { id: "2", message: "You have an appointment in 5 minutes", read: false },
   ]);
+
+  //State to change color when clicking trash button
   const [hovered, setHovered] = useState<string | null>(null);
 
+  //Function to delete notification
   const deleteNotification = (id: string) => {
     setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
 
+  //Function to mark notification as read
   const markAsRead = (id: string) => {
     setNotifications((prev) =>
       prev.map((notif) =>
@@ -29,6 +35,7 @@ const NotificationCenter: React.FC = () => {
     );
   };
 
+  //Function to add a new notification with temporary placeholder message
   const addNotification = () => {
     const newNotif: Notification = {
       id: Date.now().toString(),
@@ -38,6 +45,7 @@ const NotificationCenter: React.FC = () => {
     setNotifications((prev) => [newNotif, ...prev]);
   };
 
+  //Styling for the notification center
   return (
     <SafeAreaView>
         <View className="p-4">
