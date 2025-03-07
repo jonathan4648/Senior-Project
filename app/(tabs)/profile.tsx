@@ -25,6 +25,14 @@ export default function TabThreeScreen() {
         alert('Edit profile failed: '+ error.message);
         }
     }
+    const routeNotificationCenter = async () => {
+      try {
+        await router.push('/notification_center');
+      } catch (error: any) {
+        console.log(error)
+        alert('Notification Center failed: '+ error.message);
+      }
+    }
     return (
     <SafeAreaView style={{flex:1}}>
       <View style={styles.container1}>
@@ -36,7 +44,9 @@ export default function TabThreeScreen() {
       </View>
     <View style={styles.container2}>
         <View style={styles.notifyIcon}>
-        <Text style={styles.subTitle}>Notifications</Text>
+        <TouchableOpacity onPress={routeNotificationCenter}>
+          <Text style={styles.subTitle}>Notifications</Text>
+        </TouchableOpacity>
         </View>
         <Text style={styles.subTitle}>Widgets</Text>
         <Text style={styles.subTitle}>Collabrate</Text>

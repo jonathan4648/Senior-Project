@@ -1,5 +1,5 @@
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../FirebaseConfig'; // Adjust the path as needed
+import { db } from '../../FirebaseConfig';
 
 interface Todo {
   id: string;
@@ -37,3 +37,5 @@ export const fetchTodos = async (userId: string): Promise<Todo[]> => {
     return [];
   }
 };
+
+export default fetchTodos
