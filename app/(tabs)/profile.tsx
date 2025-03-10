@@ -1,12 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView,Platform, StyleSheet,TouchableOpacity } from 'react-native';
 import { router }  from 'expo-router';
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native';
-import EditProfile from '@/app/(tabs)/EditProfile';
-import TabBarIcon from '@/components/Icons';
 import { MaterialIcons } from '@expo/vector-icons';
+
 export default function TabThreeScreen() {
     const navigation = useNavigation();
     const signOut = async () => {
@@ -58,11 +56,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#f0f0f0', // A softer white for a modern, minimalist background
     padding: 30,
   },
   container2: {
     alignItems: 'flex-start',
     padding: 18, // A softer white for a modern, minimalist background
+    backgroundColor: '#f0f0f0', // A softer white for a modern, minimalist background
     marginVertical: 0,
   },
   mainTitle: {
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
   },
   notifyIcon:{
     flexDirection:'row',
+    backgroundColor:'#f0f0f0',
   },
   subTitle: {
     fontSize: 24,

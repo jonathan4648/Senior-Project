@@ -28,7 +28,7 @@ const index = () => {
             Lastname: Lastname,
         }
         await setDoc(docRef, data);
-        router.replace('/(tabs)/home');
+        router.replace('/(tabs)/(home)/home');
       }
     } catch (error: any) {
       console.log(error)

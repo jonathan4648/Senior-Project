@@ -18,20 +18,10 @@ const index = () => {
   const signIn = async () => {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/(tabs)/home');
+      if (user) router.replace('/(tabs)/(home)/home');
     } catch (error: any) {
       console.log(error)
       alert('Sign in failed: Email and password does not exist');
-    }
-  }
-
-  const signUp = async () => {
-    try {
-      const user = await createUserWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/Signup');
-    } catch (error: any) {
-      console.log(error)
-      alert('Sign up failed: '+ error.message);
     }
   }
 
