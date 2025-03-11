@@ -41,7 +41,7 @@ export default function TabThreeScreen() {
         <Text style={styles.subTitle}>About</Text>
         <Text style={styles.subTitle}>Theme</Text>
         <TouchableOpacity onPress={signOut}>
-            <Text style={styles.subTitle}>(Sign Out)</Text>
+            <Text style={styles.subTitle}>Log Out</Text>
         </TouchableOpacity>
     </View>
     </SafeAreaView>

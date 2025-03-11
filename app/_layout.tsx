@@ -10,6 +10,7 @@ import index from "./index";
 import home from "./(tabs)/(home)/home";
 import {Stack} from 'expo-router'
 import {Drawer} from 'expo-router/drawer'
+import { Pacifico_400Regular } from '@expo-google-fonts/pacifico'
 
 
 export { ErrorBoundary,} from 'expo-router';
@@ -22,6 +23,8 @@ export default function RootLayout(){
   const [loaded,error] = useFonts({
     SpaceMono : require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
+    Pacifico_400Regular,
+    
   });
 useEffect(() => {
   if(error) throw error;
