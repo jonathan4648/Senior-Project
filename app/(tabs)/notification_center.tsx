@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
 import { AlignRight, Bell, CheckCircle, Trash2 } from "lucide-react-native";
+import { auth, db } from '../../FirebaseConfig'
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
 
 //Data fields required for each notification
 interface Notification {
@@ -13,43 +15,66 @@ interface Notification {
 
 //Initialize notification center with temporary notifications
 const NotificationCenter: React.FC = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    { id: "1", message: "Welcome to the app!", read: false },
-    { id: "2", message: "You have an appointment in 5 minutes", read: false },
-  ]);
+  const docsRef = collection(db, 'notifications');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   //State to change color when clicking trash button
   const [hovered, setHovered] = useState<string | null>(null);
 
   //Function to delete notification
-  const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+  const deleteNotification = async (id: string) => {
+    const q = query(docsRef, where("userId", "==", auth.currentUser?.uid)); // Filters only notifications for current user
+    const x = query(docsRef, where("id", "==", id)); // Filters only notifications with id
+    const querySnapshot = await getDocs(x);
+    if (querySnapshot.empty) {
+      console.log(`No document found with ID: ${id}`);
+      return;
+    }
+
+    // Loop through results and delete each document
+    querySnapshot.forEach(async (document) => {
+      await deleteDoc(doc(db, 'notifications', document.id));
+      console.log(`Deleted document with ID: ${document.id}`);
+    });
+    fetchNotifs();
   };
 
   //Function to mark notification as read
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notif) =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
+  const markAsRead = async (id: string) => {
+    
+    fetchNotifs();
   };
 
+  const fetchNotifs = async () => {
+    const q = query(docsRef, where("userId", "==", auth.currentUser?.uid)); // Filters only notifications for current user
+    const querySnapshot = await getDocs(q);  
+    const fetchedNotifications: Notification[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      message: doc.data().message,
+      read: doc.data().read,
+      userId: doc.data().userId
+    })) as Notification[];
+    setNotifications(fetchedNotifications);
+  }
+
   //Function to add a new notification with temporary placeholder message
-  const addNotification = () => {
-    const newNotif: Notification = {
-      id: Date.now().toString(),
-      message: "You have a new message!",
-      read: false,
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
+  const addNotification = async (message: string) => {
+    const docRef = doc(collection(db, 'notifications'));
+            var data = {
+              id: Date.now().toString(),
+              message: message,
+              read: false,
+              userId: auth.currentUser?.uid
+            }
+    await setDoc(docRef, data);
+    fetchNotifs();
   };
 
   //Styling for the notification center
   return (
     <SafeAreaView>
         <View className="p-4">
-        <Button onPress={addNotification} className="mb-4">
+        <Button onPress={() => addNotification("New Notification")} className="mb-4">
             <Bell size={20} color='#111' /> Add Notification
         </Button>
         <FlatList
