@@ -33,6 +33,14 @@ export default function TabThreeScreen() {
         alert('Notification Center failed: '+ error.message);
       }
     }
+    const routeSettings = async () => {
+      try {
+        await router.push('/settings');
+      } catch (error: any) {
+        console.log(error)
+        alert('Settings failed: '+ error.message);
+      }
+    }
     return (
     <SafeAreaView style={{flex:1}}>
       <View style={styles.container1}>
@@ -52,6 +60,9 @@ export default function TabThreeScreen() {
         <Text style={styles.subTitle}>Collabrate</Text>
         <Text style={styles.subTitle}>About</Text>
         <Text style={styles.subTitle}>Theme</Text>
+        <TouchableOpacity onPress={routeSettings}>
+            <Text style={styles.subTitle}>Settings</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={signOut}>
             <Text style={styles.subTitle}>(Sign Out)</Text>
         </TouchableOpacity>

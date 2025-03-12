@@ -59,6 +59,10 @@ export default function TabLayout() {
         name="firebaseUtils"
         options={{
           title: 'firebaseUtils', href: null}}/>
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'settings', href: null}}/>
       </Tabs> 
   );
 }
