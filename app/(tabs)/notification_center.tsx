@@ -1,5 +1,5 @@
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View, Modal, Pressable} from 'react-native';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
 import { AlignRight, Bell, CheckCircle, Trash2 } from "lucide-react-native";
@@ -11,6 +11,7 @@ interface Notification {
   id: string;
   message: string;
   read: boolean;
+  userId: string;
 }
 
 //Initialize notification center with temporary notifications
@@ -41,7 +42,17 @@ const NotificationCenter: React.FC = () => {
 
   //Function to mark notification as read
   const markAsRead = async (id: string) => {
-    
+    try {
+      const docRef = doc(db, 'notifications', id);
+      
+      await updateDoc(docRef, {
+        read: true, // Dynamically update the field
+      });
+  
+      console.log(`Document ${id} updated: read => true`);
+    } catch (error) {
+      console.error("Error updating document:", error);
+    }
     fetchNotifs();
   };
 
@@ -55,13 +66,18 @@ const NotificationCenter: React.FC = () => {
       userId: doc.data().userId
     })) as Notification[];
     setNotifications(fetchedNotifications);
-  }
+  };
+
+  useEffect(() => {
+    fetchNotifs();
+  }, []);
 
   //Function to add a new notification with temporary placeholder message
   const addNotification = async (message: string) => {
-    const docRef = doc(collection(db, 'notifications'));
+    const tempid = Date.now().toString();
+    const docRef = doc(collection(db, 'notifications'), tempid);
             var data = {
-              id: Date.now().toString(),
+              id: tempid,
               message: message,
               read: false,
               userId: auth.currentUser?.uid
@@ -69,6 +85,9 @@ const NotificationCenter: React.FC = () => {
     await setDoc(docRef, data);
     fetchNotifs();
   };
+
+  //Fetch notifications on load
+  fetchNotifs();
 
   //Styling for the notification center
   return (
