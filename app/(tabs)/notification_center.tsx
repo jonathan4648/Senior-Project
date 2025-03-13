@@ -1,4 +1,5 @@
-import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View, Modal, Pressable} from 'react-native';
+import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, View, Modal, Pressable} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from "react";
 import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
@@ -92,10 +93,10 @@ const NotificationCenter: React.FC = () => {
   //Styling for the notification center
   return (
     <SafeAreaView>
-        <View className="p-4">
-        <Button onPress={() => addNotification("New Notification")} className="mb-4">
-            <Bell size={20} color='#111' /> Add Notification
-        </Button>
+        <View>
+        <View style={{ height: 60, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Notifications</Text>
+        </View>
         <FlatList
             data={notifications}
             keyExtractor={(item) => item.id}
