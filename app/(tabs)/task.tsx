@@ -6,9 +6,34 @@ import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { Calendar } from 'react-native-calendars';
+import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import * as Location from 'expo-location';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDamfZckYnYMJAPCf3w0t4PUX4mQstsBSQ';
+const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+interface SelectedLocation {
+    formatted_address: string;
+    description: string;
+    // ... other properties you need from Google Places API
+};
+
+interface Prediction {
+    description: string;
+};
+
+interface TodoItem {
+    id: string;
+    task: string;
+    completed: boolean;
+    userId: string;
+    priority: string;
+    date: string;
+    time: string;
+    location: string;
+    travelTime: string;
+    distance: string;
+}
 
 export default function TabTwoScreen() {
   const [task, setTask] = useState('');
@@ -24,17 +49,42 @@ export default function TabTwoScreen() {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10)); // Initialize with today's date (YYYY-MM-DD)
     const [showCalendar, setShowCalendar] = useState(true);
     const [time, setTime] = useState('');
-
+    //const for location services
     const [taskLocation, setTaskLocation] = useState('');
     const [travelTime, setTravelTime] = useState('');
     const [distance, setDistance] = useState('');
-    const [userLocation, setUserLocation] = useState(null);
-    const [hasLocationPermission, setHasLocationPermission] = useState(null);
+    const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
+    const [hasLocationPermission, setHasLocationPermission] = useState(false);
     const [predictions, setPredictions] = useState([]);
     const [showPredictions, setShowPredictions] = useState(false);
-    
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [searchResults, setSearchResults] = useState<Prediction[]>([]);
+    const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    //information icon
+    const [infoModalVisible, setInfoModalVisible] = useState(false); // Modal for task info
+    const [selectedTodoInfo, setSelectedTodoInfo] = useState<TodoItem | null>(null); // Selected todo for info modal
+
+    //edit button 
+    const [editMode, setEditMode] = useState(false);
+    const handleEdit = (item) => {
+    setTask(item.task);
+    setSelectedPriority(item.priority);
+    setSelectedDate(item.date);
+    setTime(item.time);
+    setTaskLocation(item.location);
+    setTravelTime(item.travelTime);
+    setDistance(item.distance);
+    setSelectedTodoInfo(item);
+    setShowCalendar(true);
+    setMenuVisible(true);
+    setInfoModalVisible(false);
+    setEditMode(true);
+    };
+
 
 
   useEffect(() => {
@@ -61,33 +111,40 @@ export default function TabTwoScreen() {
     }
   };
 
-  const handleSearch = async (text) => {
-        setSearchQuery(text);
+  const handleSearch = async (text: string) => {
+        setTaskLocation(text); // Update taskLocation immediately
         if (text.length > 2) {
             try {
+                const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY; //Move this line.
+                console.log("API KEY inside handleSearch:", GOOGLE_MAPS_API_KEY);
                 let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&key=${GOOGLE_MAPS_API_KEY}`;
                 if (userLocation) {
                     url += `&location=${userLocation.latitude},${userLocation.longitude}&radius=20000`;
                 }
+                console.log("API URL:", url); // Debugging: Check the URL
                 const response = await fetch(url);
                 const data = await response.json();
+                console.log("API Response:", data); // Debugging: Check the response
+
                 if (data.predictions) {
-                    setSearchResults(data.predictions);
-                    setShowSearchResults(true);
+                    setPredictions(data.predictions);
+                    setShowPredictions(true);
                 } else {
-                    setSearchResults([]);
-                    setShowSearchResults(false);
+                    setPredictions([]);
+                    setShowPredictions(false);
                 }
             } catch (error) {
                 console.error('Error fetching autocomplete predictions:', error);
-                setSearchResults([]);
-                setShowSearchResults(false);
+                console.log("Api Error:", error);
+                setPredictions([]);
+                setShowPredictions(false);
             }
         } else {
-            setSearchResults([]);
-            setShowSearchResults(false);
+            setPredictions([]);
+            setShowPredictions(false);
         }
     };
+
 
   const calculateDirections = async () => {
       if (!userLocation || !taskLocation) return;
@@ -131,7 +188,7 @@ const handleSelectLocation = async (placeId) => {
         }
     };
 
-    const selectPrediction = (prediction) => {
+    const selectPrediction = (prediction: Prediction) => {
         setTaskLocation(prediction.description);
         setPredictions([]);
         setShowPredictions(false);
@@ -190,8 +247,31 @@ const handleSelectLocation = async (placeId) => {
         setMenuVisible(prevState => !prevState);
     };
 
-    const AddandClose = () => {
-        addTodo(); // Call your addTodo function
+    const AddandClose = async (isEdit = false, id = null) => {
+        if (isEdit && id) {
+        // Update existing task
+        const todoDoc = doc(db, 'todos', id);
+        await updateDoc(todoDoc, {
+            task,
+            priority: selectedPriority,
+            date: selectedDate,
+            time: time,
+            location: taskLocation,
+            travelTime: travelTime,
+            distance: distance,
+        });
+        fetchTodos();
+    } else {
+        await addTodo(); // Call your addTodo function
+        }
+        setTask('');
+        setSelectedPriority('Low');
+        setSelectedDate(new Date().toISOString().slice(0, 10));
+        setTime('');
+        setTaskLocation('');
+        setTravelTime('');
+        setDistance('');
+        setShowCalendar(false);
         setShowCalendar(false);
         toggleMenu(); // Call your toggleMenu function
     };
@@ -202,6 +282,16 @@ const handleSelectLocation = async (placeId) => {
         setShowCalendar(false); // Hide the calendar after selection
     };
 
+    //view info 
+    const showTodoDetails = (item) => {
+    setSelectedTodoInfo(item);
+    setInfoModalVisible(true);
+};
+
+const hideTodoDetails = () => {
+    setInfoModalVisible(false);
+    setSelectedTodoInfo(null);
+};
 
     
   return (
@@ -229,8 +319,8 @@ const handleSelectLocation = async (placeId) => {
                       style={styles.input}
                       />
                   </View>
-
-                 
+                  
+                  {/* time input  */}
                   <View style={styles.inputContainer}>
                       <TextInput
                           placeholder="Time (e.g., 10:30 AM)"
@@ -240,7 +330,7 @@ const handleSelectLocation = async (placeId) => {
                       />
                   </View>
                 
-                 
+                  {/* Calendar view in create event  */}
                   <View>
                   {showCalendar && (
                       <Calendar
@@ -270,12 +360,12 @@ const handleSelectLocation = async (placeId) => {
                           <Picker.Item label="High" value="High" />
                           </Picker>
                   </View>
-
+                   {/* Locaiton services */}
                   <View style={styles.inputContainer}>
                         <TextInput
                             placeholder="Task Location"
-                            value={taskLocation}
-                            onChangeText={setTaskLocation}
+                             value={taskLocation}
+                            onChangeText={handleSearch} // search for a location 
                             style={styles.input}
                         />
                         <TouchableOpacity style={styles.locationButton} onPress={calculateDirections}>
@@ -285,7 +375,7 @@ const handleSelectLocation = async (placeId) => {
                     {showPredictions && (
                     <FlatList
                         data={predictions}
-                        renderItem={({ item }) => (
+                          renderItem={({ item }: { item: Prediction }) => (
                             <TouchableOpacity style={styles.predictionItem} onPress={() => selectPrediction(item)}>
                                 <Text>{item.description}</Text>
                             </TouchableOpacity>
@@ -294,10 +384,14 @@ const handleSelectLocation = async (placeId) => {
                         style={styles.predictionsList}
                     />
                     )}
-
-                  <TouchableOpacity style={styles.addButton} onPress={AddandClose}>
+                     {/* add, cancel and close buttons */}
+                  <TouchableOpacity style={styles.addButton} onPress={() => AddandClose(false, null)}>
                       <Text style={styles.buttonText}>Add</Text>
                   </TouchableOpacity>
+                   {/* changes to save when edit is true*/}
+                  <TouchableOpacity style={styles.addButton} onPress={() => AddandClose(true, selectedTodoInfo?.id)}>
+                      <Text style={styles.buttonText}>Save</Text>
+                   </TouchableOpacity>
                   <TouchableOpacity 
                       style={styles.button} 
                       onPress={() => {
@@ -319,24 +413,52 @@ const handleSelectLocation = async (placeId) => {
         <FlatList
           data={todos}
           renderItem={({ item }) => (
-            <View style={styles.todoContainer}>
+              <View style={styles.todoContainer}>
+
               <Text style={{ textDecorationLine: item.completed ? 'line-through' : 'none', flex: 1 }}>{item.task}</Text>
-                  <Text style={{ fontSize: 12, color: '#666', flex: 0.5 }}>Priority: {item.priority}</Text>
-                  <Text style={{ fontSize: 12, color: '#666', flex: 0.5 }}>
-                  <Text style={{ fontSize: 12, color: '#666', flex: 0.5 }}>Travel Time: {item.travelTime}</Text>
-                      Date: {item.date} {/* Display the date (already in YYYY-MM-DD format) */}
-                  </Text>
+
+                <TouchableOpacity onPress={() => showTodoDetails(item)}>
+                    <Ionicons name="information-circle-outline" size={24} color="#007AFF" />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => handleEdit(item)}>
+                    <AntDesign name="edit" size={24} color="black" />
+                </TouchableOpacity>
+
               <TouchableOpacity style={styles.button} onPress={() => updateTodo(item.id, item.completed)}>
                 <Text style={styles.buttonText}>{item.completed ? "Undo" : "Complete"}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={() => deleteTodo(item.id)}>
-                <Text style={styles.buttonText}>Delete</Text>
+
+              <TouchableOpacity onPress={() => deleteTodo(item.id)}>
+               <AntDesign name="delete" size={24} color="black" />
               </TouchableOpacity>
             </View>
 
           )}
           keyExtractor={(item) => item.id}
               />
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={infoModalVisible}
+            onRequestClose={hideTodoDetails}
+        >
+            <View style={styles.centeredView}>
+                <View style={styles.infoView}>
+                    {selectedTodoInfo && (
+                        <>
+                            <Text style={styles.infoText}>Task: {selectedTodoInfo.task}</Text>
+                            <Text style={styles.infoText}>Priority: {selectedTodoInfo.priority}</Text>
+                            <Text style={styles.infoText}>Travel Time: {selectedTodoInfo.travelTime}</Text>
+                            <Text style={styles.infoText}>Date: {selectedTodoInfo.date}</Text>
+                        </>
+                    )}
+                    <TouchableOpacity style={styles.closeButton} onPress={hideTodoDetails}>
+                        <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            </Modal>
 
         {/* opens up priority menu */ }
         <Modal visible={modalVisible} animationType="slide" transparent={false} > 
@@ -544,5 +666,42 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
     },
-
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    infoView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    infoText: {
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    closeButton: {
+        backgroundColor: '#2196F3',
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        marginTop: 10,
+    },
+    closeButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center'
+    },
 });
+
