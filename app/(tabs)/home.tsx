@@ -1,87 +1,142 @@
-/**
- * @file home.tsx
- * @description This file contains the main component for the Home Page of the application. It includes user authentication check and displays the current date and a title.
- */
-import { fetchTodos } from './firebaseUtils'; // Adjust the path as needed
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { db } from '../../FirebaseConfig';
-import {StyleSheet, TouchableOpacity,Text, View, FlatList, Button} from 'react-native';
-import { auth} from '@/FirebaseConfig';
-import { getAuth } from 'firebase/auth'
-import { router }  from 'expo-router';
-//import { FlatList, } from 'react-native-gesture-handler';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useNavigation, DrawerActions, NavigationContainer} from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import DrawerItems from '@/constants/DrawerItems';
-import Saved from '@/screens/Saved';
-import Today from '@/screens/Today';
-import Settings from '@/screens/Settings';
-import Refer from '@/screens/Refer';
-import { Feather } from '@expo/vector-icons';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { fetchTodos } from './firebaseUtils'; // Adjust the path as needed
+import { getAuth } from 'firebase/auth';
+import { StyleSheet, Text, View, FlatList, Modal, TouchableOpacity } from 'react-native';
+import { Feather } from '@expo/vector-icons'; // Import Feather icons
+import { auth } from '@/FirebaseConfig'; 
+import { router } from 'expo-router';
+
+// Define the valid icon names for Feather
+type FeatherIconNames = 'home' | 'check' | 'bell' | 'user' | 'gift'; // Add more if needed
 
 /**
  * @function TabOneScreen
  * @description Main component for the Home Page. It checks if the user is authenticated and redirects to the login page if not. Displays the current date and a title.
  * @returns {JSX.Element} The rendered component.
  */
-/*
-export default function TabOneScreen(){
-    const navigation = useNavigation();
-  getAuth().onAuthStateChanged((user) => {
-    if (!user) router.replace('/');
-  });
-  */
+export default function TabOneScreen() {
+  const [todos, setTodos] = useState<any>([]);
+  const [showTutorial, setShowTutorial] = useState<boolean>(true); // Show the tutorial modal initially
+  const [currentTabIndex, setCurrentTabIndex] = useState<number>(0); // Track the current tab in tutorial
+  const auth = getAuth();
 
-  export default function TabOneScreen() {
-    const [todos,setTodos] = useState<any>([]);
-    const auth = getAuth();
-
-    useEffect(() => {
-      if (auth.currentUser) {
-        fetchTodos(auth.currentUser.uid).then(setTodos);
-      }
-    }, [auth.currentUser]);
-
+  useEffect(() => {
+    if (auth.currentUser) {
+      fetchTodos(auth.currentUser.uid).then(setTodos);
+    }
+  }, [auth.currentUser]);
 
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  });  
+  });
+
+  // Define the tabs and their icons along with descriptions
+  const tabs = [
+    { name: 'Homepage', icon: 'home', description: 'This is the homepage where you can see the overview of ToDo.' },
+    { name: 'Task', icon: 'check', description: 'Manage your tasks, mark them as completed, or add new ones.' },
+    { name: 'Notifications', icon: 'code', description: 'View your notifications and important updates.' },
+    { name: 'Profile', icon: 'user', description: 'Manage your profile information and settings.' },
+    { name: 'Rewards', icon: 'gift', description: 'View and manage any rewards you have earned.' }
+  ];
+
+  const nextTab = () => {
+    if (currentTabIndex < tabs.length - 1) {
+      setCurrentTabIndex(currentTabIndex + 1);
+    } else {
+      setShowTutorial(false); // End tutorial after showing all tabs
+    }
+  };
+
+  const closeTutorial = () => {
+    setShowTutorial(false); // Close the tutorial when "X" is clicked
+  };
+
+  // Function to show the tutorial again
+  const startTutorial = () => {
+    setCurrentTabIndex(0); // Reset to the first tab
+    setShowTutorial(true); // Show the tutorial modal
+  };
 
   return (
     <View style={styles.container}>
-      <Text style= {styles.dateText}>{formattedDate}</Text>
+      <Text style={styles.dateText}>{formattedDate}</Text>
       <Text style={styles.title}>Home Page</Text>
       <FlatList
-        data= {todos}
+        data={todos}
         renderItem={({ item }) => (
-          <Text style = {styles.todoText}>{item.task}</Text>)}
-          keyExtractor= {(item) => item.id}
-    />
+          <Text style={styles.todoText}>{item.task}</Text>
+        )}
+        keyExtractor={(item) => item.id}
+      />
+
+      {/* Tutorial Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showTutorial}
+        onRequestClose={closeTutorial}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {/* Close Button ("X") */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={closeTutorial}
+            >
+              <Feather name="x" size={30} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Welcome to ToDo!</Text>
+            <Text style={styles.modalText}>Here is a brief tutorial to help you get started!</Text>
+            <Text style={styles.modalText}>Tab: {tabs[currentTabIndex].name}</Text>
+            <Feather 
+              name={tabs[currentTabIndex].icon as FeatherIconNames} 
+              size={50} 
+              color="black" 
+            />
+            <Text style={styles.modalText}>{tabs[currentTabIndex].description}</Text>
+            
+            {/* Change the button text to 'Close' on the last tab */}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={currentTabIndex === tabs.length - 1 ? closeTutorial : nextTab} // Close if it's the last tab
+            >
+              <Text style={styles.buttonText}>
+                {currentTabIndex === tabs.length - 1 ? 'Close' : 'Next'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Button to View Tutorial Again */}
+      <TouchableOpacity
+        style={styles.viewTutorialButton}
+        onPress={startTutorial}
+      >
+        <Text style={styles.buttonText}>View Tutorial Again</Text>
+      </TouchableOpacity>
     </View>
   );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAFAFA', // A softer white for a modern, minimalist background
+    backgroundColor: '#FAFAFA',
   },
 
   dateText: {
-    fontSize: 20, // Slightly larger for emphasis
-    fontWeight: '600', // Semi-bold for a balanced weight
-    marginBottom: 10, // Increased space for a more airy, open feel
-    color: '#7B1FA2', // A dark purple for a unique look
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: '#7B1FA2',
     position: 'absolute',
-    top : 200,
+    top: 200,
   },
   todoText: {
     fontSize: 18,
@@ -90,52 +145,75 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     marginBottom: 30,
     paddingHorizontal: 10,
-    top : 250,
+    top: 250,
   },
   title: {
-    fontSize: 28, // A bit larger for a more striking appearance
-    fontWeight: '800', // Extra bold for emphasis
-    marginBottom: 40, // Increased space for a more airy, open feel
-    color: '#7B1FA2', // A dark purple for a unique look
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 40,
+    color: '#7B1FA2',
     position: 'absolute',
     top: 100,
     left: 10,
   },
-  textInput: {
-    height: 50, // Standard height for elegance and simplicity
-    width: '90%', // Full width for a more expansive feel
-    backgroundColor: '#FFFFFF', // Pure white for contrast against the container
-    borderColor: '#E8EAF6', // A very light indigo border for subtle contrast
-    borderWidth: 2,
-    borderRadius: 15, // Softly rounded corners for a modern, friendly touch
-    marginVertical: 15,
-    paddingHorizontal: 25, // Generous padding for ease of text entry
-    fontSize: 16, // Comfortable reading size
-    color: '#3C4858', // A dark gray for readability with a hint of warmth
-    shadowColor: '#9E9E9E', // A medium gray shadow for depth
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4, // Slightly elevated for a subtle 3D effect
-  },
-  menuButton: {
-    width: '90%',
-    marginVertical: 15,
-    backgroundColor: '#5C6BC0', // A lighter indigo to complement the title color
-    padding: 20,
-    borderRadius: 15, // Matching rounded corners for consistency
-    alignItems: 'center',
+  modalContainer: {
+    flex: 1,
     justifyContent: 'center',
-    shadowColor: '#5C6BC0', // Shadow color to match the button for a cohesive look
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 5,
-    elevation: 5,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  text: {
-    color: '#FFFFFF', // Maintained white for clear visibility
-    fontSize: 18, // Slightly larger for emphasis
-    fontWeight: '600', // Semi-bold for a balanced weight
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 5,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#7B1FA2',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+  },
+  viewTutorialButton: {
+    backgroundColor: '#7B1FA2',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    position: 'absolute',
+    bottom: 30,
   },
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
