@@ -41,6 +41,14 @@ export default function TabThreeScreen() {
         alert('Settings failed: '+ error.message);
       }
     }
+    const routeAnalytics = async () => {
+      try {
+        await router.push('/analytics_dashboard');
+      } catch (error: any) {
+        console.log(error)
+        alert('Analytics Dashboard failed: '+ error.message);
+      }
+    }
     return (
     <SafeAreaView style={{flex:1}}>
       <View style={styles.container1}>
@@ -56,6 +64,9 @@ export default function TabThreeScreen() {
           <Text style={styles.subTitle}>Notifications</Text>
         </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={routeAnalytics}>
+            <Text style={styles.subTitle}>Analytics</Text>
+        </TouchableOpacity>
         <Text style={styles.subTitle}>Widgets</Text>
         <Text style={styles.subTitle}>Collabrate</Text>
         <Text style={styles.subTitle}>About</Text>

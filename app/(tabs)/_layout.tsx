@@ -63,6 +63,10 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'settings', href: null}}/>
+      <Tabs.Screen
+        name="analytics_dashboard"
+        options={{
+          title: 'analytics', href: null}}/>
       </Tabs> 
   );
 }
