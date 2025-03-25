@@ -64,7 +64,7 @@ export default function TabLayout() {
         options={{
           title: 'settings', href: null}}/>
       <Tabs.Screen
-        name="analytics_dashboard"
+        name="analytics"
         options={{
           title: 'analytics', href: null}}/>
       </Tabs> 
