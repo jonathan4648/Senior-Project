@@ -6,9 +6,9 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 export default function Layout () {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer initialRouteName="home">
+      <Drawer initialRouteName="Home">
         <Drawer.Screen
-          name="home" // This is the name of the page and must match the url from root
+          name="Home" // This is the name of the page and must match the url from root
           options={{
             drawerLabel: 'Home',
             headerTitle: 'Homepage',
@@ -43,6 +43,20 @@ export default function Layout () {
             drawerIcon: ({ focused, color, size }) => (
               <Ionicons
                 name="today"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="MapView" // This is the name of the page and must match the url from root
+          options={{
+            drawerLabel: 'Map',
+            headerTitle: 'Map View',
+            drawerIcon: ({ focused, color, size }) => (
+              <Ionicons
+                name="map"
                 size={size}
                 color={color}
               />
