@@ -12,14 +12,12 @@ interface Task {
   category: string;
 }
 
-// Props Type
+//Temp structure for dashboard
 interface DashboardProps {
   tasks: Task[];
 }
 
-// Colors for the charts
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
+//Placeholder data for page testing (temporary)
 const Dashboard: React.FC<DashboardProps> = () => {
   var task1 = { id: 1, name: "Task 1", completed: true, category: "Work" };
   var task2 = { id: 2, name: "Task 2", completed: false, category: "Personal" };
@@ -40,12 +38,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
     { name: "Completed", value: completedTasks },
     { name: "Pending", value: pendingTasks },
   ];
-
-  const categoryData = Object.keys(categoryCount).map((category, index) => ({
-    name: category,
-    value: categoryCount[category],
-    color: COLORS[index % COLORS.length],
-  }));
 
   return (
     

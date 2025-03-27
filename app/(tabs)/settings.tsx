@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Switch, StyleSheet, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
+//Placeholder for settings screen
 const SettingsScreen: React.FC = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 

@@ -57,6 +57,7 @@ const NotificationCenter: React.FC = () => {
     fetchNotifs();
   };
 
+  //Fetch notifications from database to display in notification center
   const fetchNotifs = async () => {
     const q = query(docsRef, where("userId", "==", auth.currentUser?.uid)); // Filters only notifications for current user
     const querySnapshot = await getDocs(q);  
