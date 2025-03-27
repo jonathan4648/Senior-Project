@@ -52,6 +52,22 @@ export default function TabLayout() {
         name="EditProfile"
         options={{
           title: 'Editing Profile',href: null}}/>
-    </Tabs>
+      <Tabs.Screen
+        name="notification_center"
+        options={{
+          title: 'Notifications', href: null}}/>
+      <Tabs.Screen
+        name="firebaseUtils"
+        options={{
+          title: 'firebaseUtils', href: null}}/>
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'settings', href: null}}/>
+      <Tabs.Screen
+        name="analytics"
+        options={{
+          title: 'analytics', href: null}}/>
+      </Tabs> 
   );
 }
