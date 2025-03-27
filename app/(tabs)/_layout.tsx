@@ -6,18 +6,12 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { NavigationContainer } from '@react-navigation/native';
-import DrawerItems from '@/constants/DrawerItems';
 import { FontAwesome5 } from '@expo/vector-icons';
-import Today from '@/screens/Today';
-import Settings from '@/screens/Settings';
-import Saved from '@/screens/Saved';
-import Refer from '@/screens/Refer';
-import TabOneScreen from './home';
+import TabOneScreen from './(home)/home';
 import Feather from '@expo/vector-icons/Feather'
 import TabBarIcon from '@/components/Icons'
+import {Drawer} from 'expo-router/drawer'
 
-const Drawer = createDrawerNavigator();
 export default function TabLayout() {
   const colorScheme = useColorScheme();  
   return (
@@ -27,17 +21,24 @@ export default function TabLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen
-        name="home"
+        name="(home)"
         options={{
           title: 'Homepage',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} iconSet='Feather' />,
-      }}
+        }}
       />
       <Tabs.Screen
         name="task"
         options={{
           title: 'Task',
           tabBarIcon: ({ color }) => <TabBarIcon name="check" color={color} iconSet= 'Feather'/>,
+        }}
+      />
+      <Tabs.Screen
+        name="notification_center"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bell" color={color} iconSet='Feather'/>,
         }}
       />
       <Tabs.Screen
