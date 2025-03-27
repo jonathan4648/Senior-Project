@@ -7,7 +7,10 @@ import { TextInput } from 'react-native-gesture-handler'
 import { router } from 'expo-router'
 import {db} from '../FirebaseConfig';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, FontAwesome5} from '@expo/vector-icons'
+import { Pacifico_400Regular } from '@expo-google-fonts/pacifico'
+import { LinearGradient } from 'expo-linear-gradient'
+
 const index = () => {
   const [email, setEmail] = useState('');
   const [password,setPassword] = useState('');
@@ -28,86 +31,57 @@ const index = () => {
             Lastname: Lastname,
         }
         await setDoc(docRef, data);
-        router.replace('/(tabs)/home');
+        router.replace('/(tabs)/(home)/home');
       }
     } catch (error: any) {
       console.log(error)
-      alert('Sign up failed: '+ error.message);
+      alert('Sign up failed: Email or password is invalid'+ error.message);
     }
   }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#CBC3E3', // Change background color to pure white
-    },
-    title: {
-      fontSize: 24, // Increase font size for better readability
-      fontWeight: 'bold', // Make the font bold
-      color: '#333333', // Change color to a dark grey for better contrast
-      marginVertical: 10, // Add vertical margin for spacing
-      alignItems: 'center', // Center the text
-      flexShrink: 1,
-      fontFamily: "", // Use a fun font for a modern look
-    },
-    input: {
-      width: '70%', // Set width to 80% of the container
-      padding: 10, // Add padding inside the input
-      marginVertical: 10, // Add vertical margin for spacing
-      borderWidth: 1, // Add border width
-      borderBlockColor: '#6F2DA8', // Set border color to light purple
-      borderColor: '#6F2DA8', // Set border color to light grey
-      borderRadius: 5, // Add border radius for rounded corners
-      flexDirection: "row"
-    },
-    button: {
-      backgroundColor: '#007BFF', // Set button background color to blue
-      padding: 10, // Add padding inside the button
-      borderRadius: 5, // Add border radius for rounded corners
-      marginVertical: 10, // Add vertical margin for spacing
-    },
-    buttonText: {
-      color: '#FFFFFF', // Set button text color to white
-      fontSize: 18, // Increase font size for better readability
-      fontWeight: 'bold', // Make the font bold
-      textAlign: 'center', // Center the text
-    },
-  });
-
   return(
     <GestureHandlerRootView>
-      <SafeAreaView style={styles.container}>
-        <Button title="< Go back" onPress={() => router.replace('/')} />
+      <LinearGradient
+        colors={['#7B1FA2', '#6F2DA8', '#6432A8','transparent']}
+        style={styles.background}>
+      <SafeAreaView style={styles.background}>
         <Text style={styles.title}>Sign up page</Text>
-
-        <View style={styles.input}>
-        <TextInput 
-          placeholder=" First Name" 
-          value={Firstname} 
-          onChangeText={setFname}
-        />
+        <View style={styles.inputbox}>
+          <FontAwesome5 name="user" size={24} color="black" />
+          <TextInput 
+            style={styles.userinput}
+            placeholder=" First Name" 
+            placeholderTextColor={'black'}
+            value={Firstname} 
+            onChangeText={setFname}
+          />
         </View>
-        <View style={styles.input} >
+        <View style={styles.inputbox}>
+        <FontAwesome5 name="user" size={24} color="black" />
         <TextInput 
-          placeholder=" Last name" 
+          style={styles.userinput}
+          placeholder=" Last name"
+          placeholderTextColor={'black'} 
           value={Lastname} 
           onChangeText={setLname}
         />
         </View>
-        <View style={styles.input}>
-        <MaterialCommunityIcons name="email-outline" size={20} color="gray" />
+        <View style={styles.inputbox}>
+        <MaterialCommunityIcons name="email-outline" size={24} color="black" />
         <TextInput 
-          placeholder=" Email" 
+          style={styles.userinput}
+          placeholder="Email" 
+          placeholderTextColor={'black'}
           value={email} 
           onChangeText={setEmail}
         />
         </View>
-        <View style={styles.input}>
-        <MaterialCommunityIcons name="lock" size={20} color="gray" />
+        <View style={styles.inputbox}>
+        <MaterialCommunityIcons name="lock" size={24} color="black" />
         <TextInput 
-          placeholder='  Password' 
+          style={styles.userinput}
+          placeholder='Password' 
+          placeholderTextColor={'black'}
           value={password} 
           onChangeText={setPassword} 
           secureTextEntry
@@ -116,9 +90,69 @@ const index = () => {
         <TouchableOpacity style={styles.button} onPress={signUp}>
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.replace('/')}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
       </SafeAreaView>
+      </LinearGradient>
     </GestureHandlerRootView>
   )
 }
+
+const styles = StyleSheet.create({
+  background:{
+    flex:1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#CBC3E3', // Change background color to pure white
+  },
+  title: {
+    fontSize: 50, // Increase font size for better readability
+    fontWeight: 'bold', // Make the font bold
+    color: 'black', // Change color to a dark grey for better contrast
+    marginVertical: 10, // Add vertical margin for spacing
+    alignItems: 'center', // Center the text
+    flexShrink: 1,
+    fontFamily: "Pacifico_400Regular", // Use a fun font for a modern look
+  },
+  inputbox: {
+    width: '90%', // Set width to 80% of the container
+    padding: 12, // Add padding inside the input
+    marginVertical: 5, // Add vertical margin for spacing
+    borderWidth: 4, // Add border width
+    borderBlockColor: 'black', // Set border color to light purple
+    borderColor: 'black', // Set border color to light grey
+    borderRadius: 30, // Add border radius for rounded corners
+    flexDirection: "row",
+  },
+  userinput:{
+    width: '70%',
+    color: 'black',
+    fontWeight: '500',
+    fontSize: 20,
+    marginLeft: 15,
+  },
+  button: {
+    width: '20%', // Set width to 80% of the container
+    backgroundColor: '#51158C', // Set button background color to blue
+    padding: 10, // Add padding inside the button
+    borderRadius: 20, // Add border radius for rounded corners
+    marginVertical: 10, // Add vertical margin for spacing
+  },
+  buttonText: {
+    width: '0%', // Set width to 100% of the button
+    color: '#FFFFFF', // Set button text color to white
+    fontSize: 24, // Increase font size for better readability
+    fontWeight: 'bold', // Make the font bold
+    textAlign: 'center', // Center the text
+    paddingLeft: 50,
+    paddingRight: 50,
+  },
+});
 
 export default index

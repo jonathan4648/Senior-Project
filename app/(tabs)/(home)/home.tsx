@@ -2,71 +2,32 @@
  * @file home.tsx
  * @description This file contains the main component for the Home Page of the application. It includes user authentication check and displays the current date and a title.
  */
-import { fetchTodos } from './firebaseUtils'; // Adjust the path as needed
+import { fetchTodos } from '../firebaseUtils'; // Adjust the path as needed
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { db } from '../../FirebaseConfig';
+import { db } from '../../../FirebaseConfig';
 import {StyleSheet, TouchableOpacity,Text, View, FlatList, Button} from 'react-native';
 import { auth} from '@/FirebaseConfig';
 import { getAuth } from 'firebase/auth'
 import { router }  from 'expo-router';
-//import { FlatList, } from 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useNavigation, DrawerActions, NavigationContainer} from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import DrawerItems from '@/constants/DrawerItems';
-import Saved from '@/screens/Saved';
-import Today from '@/screens/Today';
-import Settings from '@/screens/Settings';
-import Refer from '@/screens/Refer';
 import { Feather } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { Drawer } from 'expo-router/drawer';
 
 /**
  * @function TabOneScreen
  * @description Main component for the Home Page. It checks if the user is authenticated and redirects to the login page if not. Displays the current date and a title.
  * @returns {JSX.Element} The rendered component.
  */
-/*
-export default function TabOneScreen(){
-    const navigation = useNavigation();
-  getAuth().onAuthStateChanged((user) => {
-    if (!user) router.replace('/');
-  });
-  */
-
-  export default function TabOneScreen() {
-    const [todos,setTodos] = useState<any>([]);
-    const auth = getAuth();
-
-    useEffect(() => {
-      if (auth.currentUser) {
-        fetchTodos(auth.currentUser.uid).then(setTodos);
-      }
-    }, [auth.currentUser]);
-
-
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });  
-
+export default function Homepage(){
   return (
     <View style={styles.container}>
-      <Text style= {styles.dateText}>{formattedDate}</Text>
       <Text style={styles.title}>Home Page</Text>
-      <FlatList
-        data= {todos}
-        renderItem={({ item }) => (
-          <Text style = {styles.todoText}>{item.task}</Text>)}
-          keyExtractor= {(item) => item.id}
-    />
     </View>
   );
-
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
