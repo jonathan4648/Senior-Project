@@ -35,6 +35,10 @@ const index = () => {
     }
   }
 
+  const forgotPassword = () => {
+    alert('Forgot Password clicked!');
+  };  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -106,7 +110,10 @@ const index = () => {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => router.replace('/Signup')}>
-          <Text style={styles.buttonText}>Sign up</Text>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={forgotPassword}>
+          <Text style={{ color: '#007BFF', marginTop: 10 }}>Forgot Password?</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </GestureHandlerRootView>
