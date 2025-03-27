@@ -10,6 +10,14 @@ import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import * as Location from 'expo-location';
 
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {
+  GoogleLocationDetailResult,
+  GoogleLocationResult,
+} from 'react-native-google-autocomplete';
+
+
+
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 interface SelectedLocation {
@@ -111,6 +119,7 @@ export default function TabTwoScreen() {
     }
   };
 
+
   const handleSearch = async (text: string) => {
         setTaskLocation(text); // Update taskLocation immediately
         if (text.length > 2) {
@@ -171,7 +180,7 @@ export default function TabTwoScreen() {
         }
     };
 
-const handleSelectLocation = async (placeId) => {
+const handleSelectLocation = async (placeId: string) => {
         try {
             const response = await fetch(
                 `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`
@@ -362,12 +371,12 @@ const hideTodoDetails = () => {
                   </View>
                    {/* Locaiton services */}
                   <View style={styles.inputContainer}>
-                        <TextInput
-                            placeholder="Task Location"
-                             value={taskLocation}
-                            onChangeText={handleSearch} // search for a location 
-                            style={styles.input}
-                        />
+                      <TextInput
+                          placeholder="Task Location"
+                          value={taskLocation}
+                          onChangeText={handleSearch} // search for a location 
+                          style={styles.input}
+                          />
                         <TouchableOpacity style={styles.locationButton} onPress={calculateDirections}>
                             <Text style={styles.buttonText}>Get Directions</Text>
                         </TouchableOpacity>
@@ -399,7 +408,7 @@ const hideTodoDetails = () => {
                               toggleMenu();// Ensure toggleMenu function is defined to handle this logic
                                setShowCalendar(false);
                           }}
-                  >
+                  >r
                       <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
               </View>
