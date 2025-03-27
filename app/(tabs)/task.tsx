@@ -1,6 +1,8 @@
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, SafeAreaView, View, Modal,Platform,ActivityIndicator} from 'react-native';
 import React, { useState, useEffect } from 'react';
+// project db and firestore imported from FirebaseConfig 
 import { db } from '../../FirebaseConfig';
+// tools imported from firebase/firestore and firebase/auth 
 import { Picker } from '@react-native-picker/picker';
 import { router }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
@@ -225,7 +227,8 @@ const handleSelectLocation = async (placeId: string) => {
       fetchTodos();
     } else {
       console.log("No user logged in");
-    }
+      fetchTodos();
+    
   };
 
   const updateTodo = async (id: string, completed: any) => {
@@ -563,15 +566,15 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-    },
-    modalContent: {
+  },
+  modalContent: {
       width: 300,
       padding: 20,
       borderRadius: 10,
       alignItems: 'center',
       justifyContent: 'center',
       height: 300,
-    },
+  },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 10,
