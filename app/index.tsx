@@ -8,7 +8,6 @@ import { router } from 'expo-router'
 import {db} from '../FirebaseConfig';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Pacifico_400Regular } from '@expo-google-fonts/pacifico'
 import { LinearGradient } from 'expo-linear-gradient'
 
 
