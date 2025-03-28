@@ -7,8 +7,12 @@ import { FontAwesome } from '@expo/vector-icons';
 import 'react-native-reanimated'
 import { useColorScheme } from '@/components/useColorScheme';
 import index from "./index";
-import home from "./(tabs)/home";
+import home from "./(tabs)/(home)/home";
 import {Stack} from 'expo-router'
+import {Drawer} from 'expo-router/drawer'
+import { Pacifico_400Regular } from '@expo-google-fonts/pacifico'
+
+
 export { ErrorBoundary,} from 'expo-router';
 export const unstable_settings = {
   iniitialRouteName: '(tabs)',
@@ -19,6 +23,8 @@ export default function RootLayout(){
   const [loaded,error] = useFonts({
     SpaceMono : require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
+    Pacifico_400Regular,
+    
   });
 useEffect(() => {
   if(error) throw error;
@@ -39,11 +45,10 @@ return <RootLayoutNav />;
 function RootLayoutNav(){
 const colorscheme = useColorScheme();
   return (
-    <Stack>
-      <Stack.Screen name="index"  options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
-      <Stack.Screen name="Signup" options={{headerShown: false}}/>
-    </Stack>
+      <Stack>
+        <Stack.Screen name="index"  options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
+        <Stack.Screen name="Signup" options={{headerShown: false}}/>
+      </Stack>
   )
 }
-

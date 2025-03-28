@@ -1,12 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView,Platform, StyleSheet,TouchableOpacity } from 'react-native';
+import { SafeAreaView,Platform, StyleSheet,TouchableOpacity,ScrollView } from 'react-native';
 import { router }  from 'expo-router';
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native';
-import EditProfile from '@/app/(tabs)/EditProfile';
-import TabBarIcon from '@/components/Icons';
 import { MaterialIcons } from '@expo/vector-icons';
+
 export default function TabThreeScreen() {
     const navigation = useNavigation();
     const signOut = async () => {
@@ -25,27 +23,61 @@ export default function TabThreeScreen() {
         alert('Edit profile failed: '+ error.message);
         }
     }
+    const routeNotificationCenter = async () => {
+      try {
+        await router.push('/notification_center');
+      } catch (error: any) {
+        console.log(error)
+        alert('Notification Center failed: '+ error.message);
+      }
+    }
+    const routeSettings = async () => {
+      try {
+        await router.push('/settings');
+      } catch (error: any) {
+        console.log(error)
+        alert('Settings failed: '+ error.message);
+      }
+    }
+    const routeAnalytics = async () => {
+      try {
+        await router.push('/analytics');
+      } catch (error: any) {
+        console.log(error)
+        alert('Analytics Dashboard failed: '+ error.message);
+      }
+    }
     return (
     <SafeAreaView style={{flex:1}}>
-      <View style={styles.container1}>
-        <Text style={styles.mainTitle}>Profile</Text>
-        <TouchableOpacity onPress={(Editprofile) }>
-          <Text style={styles.EditProfile}>Edit your profile</Text>
-          <StatusBar style="auto"/>
-        </TouchableOpacity>
-      </View>
-    <View style={styles.container2}>
-        <View style={styles.notifyIcon}>
-        <Text style={styles.subTitle}>Notifications</Text>
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        <View style={styles.container1}>
+          <Text style={styles.mainTitle}>Profile</Text>
+          <TouchableOpacity onPress={(Editprofile) }>
+            <Text style={styles.EditProfile}>Edit your profile</Text>
+            <StatusBar style="auto"/>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.subTitle}>Widgets</Text>
-        <Text style={styles.subTitle}>Collabrate</Text>
-        <Text style={styles.subTitle}>About</Text>
-        <Text style={styles.subTitle}>Theme</Text>
-        <TouchableOpacity onPress={signOut}>
-            <Text style={styles.subTitle}>(Sign Out)</Text>
-        </TouchableOpacity>
-    </View>
+      <View style={styles.container2}>
+          <View style={styles.notifyIcon}>
+          <TouchableOpacity onPress={routeNotificationCenter}>
+            <Text style={styles.subTitle}>Notifications</Text>
+          </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={routeAnalytics}>
+              <Text style={styles.subTitle}>Analytics</Text>
+          </TouchableOpacity>
+          <Text style={styles.subTitle}>Widgets</Text>
+          <Text style={styles.subTitle}>Collabrate</Text>
+          <Text style={styles.subTitle}>About</Text>
+          <Text style={styles.subTitle}>Theme</Text>
+          <TouchableOpacity onPress={routeSettings}>
+              <Text style={styles.subTitle}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={signOut}>
+              <Text style={styles.subTitle}>Log Out</Text>
+          </TouchableOpacity>
+      </View>
+    </ScrollView>
     </SafeAreaView>
   );
 }
@@ -54,15 +86,20 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  scrollView: {
+    padding: 20,
+  },
   container1: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#f0f0f0', // A softer white for a modern, minimalist background
     padding: 30,
   },
   container2: {
     alignItems: 'flex-start',
     padding: 18, // A softer white for a modern, minimalist background
+    backgroundColor: '#f0f0f0', // A softer white for a modern, minimalist background
     marginVertical: 0,
   },
   mainTitle: {
@@ -80,6 +117,7 @@ const styles = StyleSheet.create({
   },
   notifyIcon:{
     flexDirection:'row',
+    backgroundColor:'#f0f0f0',
   },
   subTitle: {
     fontSize: 24,
