@@ -1,22 +1,26 @@
 import { router} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect, useState}from 'react'
-import { View,Text,StyleSheet, Button, TouchableOpacity , SafeAreaView, TouchableWithoutFeedback, Keyboard} from "react-native"
+import { View,Text,StyleSheet, Button, TouchableOpacity , SafeAreaView, TouchableWithoutFeedback, Keyboard, Alert} from "react-native"
 import {db} from '../../FirebaseConfig';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
 import { auth } from '../../FirebaseConfig';
-import { getAuth,sendPasswordResetEmail, updateEmail, sendEmailVerification, User, } from 'firebase/auth';
+import { getAuth, sendPasswordResetEmail, verifyBeforeUpdateEmail, deleteUser,updateEmail} from 'firebase/auth';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons} from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import MaskedInput  from 'react-native-mask-input';
+import { Mask } from 'react-native-svg';
 
 export default function Editprofile() {
   const [users, setUserData] = useState<any>([]);
   const [NewEmail, setNewEmail] = useState('');
-  const [Firstname, setFirstName] = useState('');
-  const [Lastname, setLastName] = useState('');
-  const [Birthday, setBirthday] = useState('');
-  const [PhoneNum, setPhoneNum] = useState('');
+  const [Firstname, setFirstName] = useState<string>('');
+  const [Lastname, setLastName] = useState<string>('');
+  const [Birthday, setBirthday] = useState(new Date());
+  const [PhoneNum, setPhoneNum] = useState(''); // Default phone number format, can be changed
+  const [open, setOpen] = useState(false); //Datepicker modal state
   const auth = getAuth();
   const user = auth.currentUser;
   const usersCollection = collection(db, 'users');
@@ -45,22 +49,23 @@ export default function Editprofile() {
   const changeName = async ( newFirst: string, newLast: string) => {
       if (user) {
       const userDoc = doc(db, 'users', user.uid)
-      if (!newFirst && !newLast){
-        await updateDoc(userDoc,{Firstname: 'None', Lastname: 'None'}),setIsEditing(false);
-        fetchUsers();
+      if (!newFirst || !newLast){
+        alert('First name and Last name cannot be empty. Please enter valid names.');
       }else{
       await updateDoc(userDoc,{Firstname: newFirst, Lastname: newLast}),setIsEditing(false);
       fetchUsers();
     }}}
+
   //Changes birthday and adds to database
-  const changeBday = async ( bdate:string) => {
+  const changeBday = async (bdate:Date) => {
     if (user) {
       const userDoc = doc(db, 'users', user.uid)
       if (!bdate ){
-        await updateDoc(userDoc,{Birthday: 'None'}),setBdayedit(false);
+        await updateDoc(userDoc,{Birthday: 'None'}),setBdayedit(false),setOpen(false); // Close the date picker if no date is provided
         fetchUsers();
       }else{
-      await updateDoc(userDoc,{Birthday: bdate}),setBdayedit(false);
+      const formattedDate = bdate.toLocaleDateString('en-US'); // Format date to YYYY-MM-DD for consistency in the database
+      await updateDoc(userDoc,{Birthday: formattedDate}),setBdayedit(false),setOpen(false); // Close the date picker after saving
       fetchUsers();
     }}
   }
@@ -81,19 +86,25 @@ export default function Editprofile() {
     }
   };
 
-  //still needs work
+
   const changeEmail = async (newEmail:string) => {
+    //if user exist 
     if (user) {
       const currentEmail = user.email;
       const userDoc = doc(db, 'users', user.uid)
+      //if no new email is provided, fallback to the current email in the database
       if (!newEmail){
-        await updateDoc(userDoc,{email: Email}),setEmailEdit(false);
+        await setEmailEdit(false);
         return;
       }
       if (newEmail) {
-        await updateDoc(userDoc,{email: newEmail}),setEmail(newEmail),updateEmail(user, newEmail); //still need to implement this-> updateEmail(user, newEmail),
-        alert('Email update sent')
-        console.log('Email updated successfully')
+        if (newEmail === currentEmail) {
+          return(
+          alert('The new email is the same as the current email.'));
+        } // No change in email, just exit
+        await updateDoc(userDoc,{email: newEmail}),setEmail(newEmail),updateEmail(user, newEmail);
+        alert('Email update sent to old email')
+        console.log('This is the new Email: ', newEmail)
         setEmailEdit(false);
         }
       else {
@@ -101,11 +112,11 @@ export default function Editprofile() {
         };
       }
     };
-    const changePhoneNumber = async (PhoneNumber:String) => {
+    const changePhoneNumber = async (PhoneNumber:string) => {
       if (user) {
         const userDoc = doc(db, 'users', user.uid)
         if (!PhoneNumber){
-          await updateDoc(userDoc,{PhoneNumber: '1+(000-000-0000)'}),setPhoneEdit(false);
+          await setPhoneEdit(false);
           fetchUsers();
         }else{
         await updateDoc(userDoc,{PhoneNumber: PhoneNumber}),setPhoneEdit(false);
@@ -128,7 +139,7 @@ export default function Editprofile() {
     </View>
     <View style={styles.container2}>
         {!NameEdit ? (
-          <TouchableOpacity onPress={() => {setIsEditing(true);setBdayedit(false); setEmailEdit(false);setPswrdEdit(false)}}>
+          <TouchableOpacity onPress={() => {setIsEditing(true);setBdayedit(false); setEmailEdit(false);setPswrdEdit(false);setPhoneEdit(false);}}>
             <View style={styles.iconview}>
                 <FontAwesome6 name="id-badge" size={24} color="black" />
                 <Text style={styles.name}>   Name</Text>
@@ -143,8 +154,14 @@ export default function Editprofile() {
             <TextInput
               style={styles.nameinput}
               value={Firstname}
-              onChangeText={setFirstName}
-              placeholder=' First name'
+              onChangeText={(text) => {
+              if (/^[a-zA-Z\s]*$/.test(text)) {
+                setFirstName(text);
+              } else {
+                alert('Only letters and spaces are allowed for the first name.');
+              }
+              }}
+              placeholder='  First name'
               autoFocus={true}
             />
             <Text>Last name:</Text>
@@ -152,7 +169,13 @@ export default function Editprofile() {
               style={styles.nameinput}
               placeholder=' Last name'
               value={Lastname}
-              onChangeText={setLastName}
+              onChangeText={(text) => {
+                if (/^[a-zA-Z\s]*$/.test(text)) {
+                  setLastName(text);
+                } else {
+                  alert('Only letters and spaces are allowed for the first name.');
+                }
+                }}
               autoFocus={true}
             />
             <TouchableOpacity style={styles.savebutton} onPress={() => changeName(Firstname, Lastname)}>
@@ -163,7 +186,7 @@ export default function Editprofile() {
 
 
         {!BirthdayEdit ? (
-          <TouchableOpacity onPress={() => {setBdayedit(true); setIsEditing(false);setEmailEdit(false);setPswrdEdit(false)}}>
+          <TouchableOpacity onPress={() => {setBdayedit(true); setIsEditing(false);setEmailEdit(false);setPswrdEdit(false);setPhoneEdit(false)}}>
               <View style={styles.iconview}>
               <FontAwesome6 name="cake-candles" size={24} color="black" />
               <Text style={styles.name}>   Birthday</Text>
@@ -175,13 +198,27 @@ export default function Editprofile() {
               <Text style={styles.nametouchtoexit}>Birthday</Text>
             </TouchableOpacity>
             <Text>Birthday date:</Text>
-              <TextInput
-                style={styles.nameinput}
-                value={Birthday}
-                onChangeText={setBirthday}
-                placeholder='Month/Day/Year'
-                autoFocus={true}
-              />
+              <TouchableOpacity onPress={() => setOpen(true)}>
+                <TextInput
+                  style={styles.nameinput}
+                  placeholder='Month/Day/Year'
+                  value={Birthday ?
+                    Birthday.toLocaleDateString('en-US') // Format the date to a readable string
+                    : 'Select date'} // Fallback if Birthday is null
+                  autoFocus={true}
+                  editable={true}
+                  pointerEvents='none' // Prevent keyboard from appearing when tapping the input
+                  
+                />
+              </TouchableOpacity>
+              <DateTimePickerModal
+              testID="dateTimePicker"
+              onConfirm={(date) => {setBirthday(date);setOpen(false)}} // Set the date and close the picker
+              mode={'date'}
+              display= {'inline'} // Use the default display for the date picker
+              onCancel={() => setOpen(false)}
+              isVisible={open} // Use the state to control visibility of the date picker)}
+            />
             <TouchableOpacity style={styles.savebutton} onPress={() => changeBday(Birthday)}>
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
@@ -190,7 +227,7 @@ export default function Editprofile() {
 
 
         {!Passwordreset ?(
-        <TouchableOpacity onPress={() =>{setPswrdEdit(true);setEmailEdit(false); setBdayedit(false); setIsEditing(false)}}>
+        <TouchableOpacity onPress={() =>{setPswrdEdit(true);setEmailEdit(false); setBdayedit(false); setIsEditing(false);setPhoneEdit(false)}}>
               <View style={styles.iconview}>
               <FontAwesome6 name="user-lock" size={24} color="black" />
               <Text style={styles.name}>  Password</Text>
@@ -209,7 +246,7 @@ export default function Editprofile() {
 
 
         {!EmailEdit ? (
-          <TouchableOpacity onPress={() => {setEmailEdit(true); setBdayedit(false); setIsEditing(false);setPswrdEdit(false);}}>
+          <TouchableOpacity onPress={() => {setEmailEdit(true); setBdayedit(false); setIsEditing(false);setPswrdEdit(false);setPhoneEdit(false)}}>
           <View style={styles.iconview}>
               <MaterialCommunityIcons name="email-edit" size={24} color="black" />
               <Text style={styles.name}>  Email</Text>
@@ -232,7 +269,9 @@ export default function Editprofile() {
               style={styles.nameinput}
               value={NewEmail}
               onChangeText={setNewEmail}
-              placeholder='New Email'
+              placeholder='Enter new email' // Placeholder for the new email input
+              pointerEvents='auto' // Allow interaction with this input
+              
               
             />
             <TouchableOpacity style={styles.savebutton} onPress={() => changeEmail(NewEmail)}>
@@ -254,12 +293,17 @@ export default function Editprofile() {
               <Text style={styles.nametouchtoexit}>Phone Number</Text>
             </TouchableOpacity>
             <Text>Phone Number:</Text>
-              <TextInput
-                style={styles.nameinput}
+              <MaskedInput
+                style ={styles.nameinput}
+                placeholder="1+(000)000-0000" // Placeholder for the input
+                mask = {['(', '1', ')', '+', /\d/, /\d/,/\d/,'-', /\d/, /\d/, /\d/,'-',/\d/, /\d/, /\d/,/\d/]} // Mask for the phone number format
+                showObfuscatedValue={true} // Show the actual input instead of asterisks
+                onChangeText={(formatted ) => {setPhoneNum(formatted)}}
                 value={PhoneNum}
-                onChangeText={setPhoneNum}
-                placeholder='(000)000-0000'
-                autoFocus={true}
+                autoFocus={true} // Auto-focus the input when it appears
+                pointerEvents='auto' // Allow interaction with this input
+                editable={true} // Make sure the input is editable
+                maxLength={16} // Limit the length of the input to match the mask (1+(000)000-0000)
               />
             <TouchableOpacity style={styles.savebutton} onPress={() => changePhoneNumber(PhoneNum)}>
               <Text style={styles.buttonText}>Save</Text>
@@ -322,6 +366,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   nameinput:{
+    minHeight: 20, // Ensures the input box is tall enough to interact with
     padding: 10,
     borderBlockColor: '#6F2DA8',
     borderRadius:6,
@@ -331,7 +376,7 @@ const styles = StyleSheet.create({
     marginVertical:10,
     borderWidth:1,
     fontSize: 16,
-    flexDirection: 'row'
+    
   },
   pswrd: {
     fontSize: 24,
