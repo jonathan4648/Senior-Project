@@ -21,7 +21,6 @@ import { Drawer } from 'expo-router/drawer';
  * @description Main component for the Home Page. It checks if the user is authenticated and redirects to the login page if not. Displays the current date and a title.
  * @returns {JSX.Element} The rendered component.
  */
-<<<<<<< HEAD:app/(tabs)/home.tsx
 /*
 export default function TabOneScreen(){
     const navigation = useNavigation();
@@ -30,7 +29,7 @@ export default function TabOneScreen(){
   });
   */
 
-export default function TabOneScreen() {
+export function TabOneScreen() {
   const [todos,setTodos] = useState<any>([]);
   const auth = getAuth();
 
@@ -120,17 +119,7 @@ export default function TabOneScreen() {
     },
   });
 
-=======
-export default function Homepage(){
->>>>>>> main:app/(tabs)/(home)/home.tsx
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Home Page</Text>
-    </View>
-  );
-<<<<<<< HEAD:app/(tabs)/home.tsx
-}
-=======
+
 }
 const styles = StyleSheet.create({
   container: {
@@ -204,4 +193,10 @@ const styles = StyleSheet.create({
   },
 });
 
->>>>>>> main:app/(tabs)/(home)/home.tsx
+export default function Homepage(){
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Home Page</Text>
+    </View>
+  );
+}

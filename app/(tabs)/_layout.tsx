@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { FontAwesome5 } from '@expo/vector-icons';
-import TabOneScreen from './(home)/home';
+import TabOneScreen from './(home)/Home';
 import Feather from '@expo/vector-icons/Feather'
 import TabBarIcon from '@/components/Icons'
 import {Drawer} from 'expo-router/drawer'
@@ -32,13 +32,6 @@ export default function TabLayout() {
         options={{
           title: 'Task',
           tabBarIcon: ({ color }) => <TabBarIcon name="check" color={color} iconSet= 'Feather'/>,
-        }}
-      />
-      <Tabs.Screen
-        name="notification_center"
-        options={{
-          title: 'Notifications',
-          tabBarIcon: ({ color }) => <TabBarIcon name="bell" color={color} iconSet='Feather'/>,
         }}
       />
       <Tabs.Screen

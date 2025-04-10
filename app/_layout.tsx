@@ -7,7 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import 'react-native-reanimated'
 import { useColorScheme } from '@/components/useColorScheme';
 import index from "./index";
-import home from "./(tabs)/(home)/home";
+import home from "./(tabs)/(home)/Home";
 import {Stack} from 'expo-router'
 import {Drawer} from 'expo-router/drawer'
 import { Pacifico_400Regular } from '@expo-google-fonts/pacifico'

@@ -14,8 +14,8 @@ import * as Location from 'expo-location';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import {
-  GoogleLocationDetailResult,
-  GoogleLocationResult,
+  //GoogleLocationDetailResult,
+  //GoogleLocationResult,
 } from 'react-native-google-autocomplete';
 
 
@@ -80,7 +80,7 @@ export default function TabTwoScreen() {
 
     //edit button 
     const [editMode, setEditMode] = useState(false);
-    const handleEdit = (item) => {
+    const handleEdit = (item: TodoItem) => {
     setTask(item.task);
     setSelectedPriority(item.priority);
     setSelectedDate(item.date);
@@ -289,13 +289,13 @@ const handleSelectLocation = async (placeId: string) => {
     };
 
     //date selection
-    const onDayPress = (day) => {
+    const onDayPress = (day: { dateString: string }) => {
         setSelectedDate(day.dateString); // Update selectedDate with the YYYY-MM-DD string
         setShowCalendar(false); // Hide the calendar after selection
     };
 
     //view info 
-    const showTodoDetails = (item) => {
+    const showTodoDetails = (item: TodoItem) => {
     setSelectedTodoInfo(item);
     setInfoModalVisible(true);
 };
@@ -717,3 +717,4 @@ const styles = StyleSheet.create({
     },
 });
 
+}

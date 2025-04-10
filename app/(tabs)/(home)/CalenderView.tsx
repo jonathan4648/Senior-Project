@@ -44,7 +44,8 @@ export default function Calendar() {
   };
   
   //get the items and set them to the agenda
-  const renderItem = (item: Item) => {
+  const renderItem = (reservation: any) => {
+    const item = reservation as Item; // Cast reservation to Item type
     return (
       <TouchableOpacity style={styles.stackofcards}>
         <View style={styles.cardview}>
