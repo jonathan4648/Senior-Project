@@ -31,7 +31,7 @@ const index = () => {
             Lastname: Lastname,
         }
         await setDoc(docRef, data);
-        router.replace('/(tabs)/(home)/home');
+        router.replace('/(tabs)/(home)/TodaySchedule');
       }
     } catch (error: any) {
       console.log(error)
@@ -45,7 +45,7 @@ const index = () => {
         colors={['#7B1FA2', '#6F2DA8', '#6432A8','transparent']}
         style={styles.background}>
       <SafeAreaView style={styles.background}>
-        <Text style={styles.title}>Sign up page</Text>
+        <Text style={styles.title}>Sign up </Text>
         <View style={styles.inputbox}>
           <FontAwesome5 name="user" size={24} color="black" />
           <TextInput 
@@ -87,12 +87,13 @@ const index = () => {
           secureTextEntry
         />
         </View>
-        <TouchableOpacity style={styles.button} onPress={signUp}>
-          <Text style={styles.buttonText}>Sign up</Text>
+        <TouchableOpacity style={styles.SignUpbutton} onPress={signUp}>
+          <Text style={styles.LoginText}>Sign up</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => router.replace('/')}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity style={styles.LoginButton} onPress={() => router.replace('/')}>
+          <Text style={styles.SignUpText}>Login</Text>
         </TouchableOpacity>
+        <Text>Already have an account?</Text>
       </SafeAreaView>
       </LinearGradient>
     </GestureHandlerRootView>
@@ -137,21 +138,40 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 15,
   },
-  button: {
-    width: '20%', // Set width to 80% of the container
+  SignUpbutton: {
+    width: '20%',
     backgroundColor: '#51158C', // Set button background color to blue
     padding: 10, // Add padding inside the button
     borderRadius: 20, // Add border radius for rounded corners
     marginVertical: 10, // Add vertical margin for spacing
   },
-  buttonText: {
-    width: '0%', // Set width to 100% of the button
+  LoginText: {
     color: '#FFFFFF', // Set button text color to white
-    fontSize: 24, // Increase font size for better readability
+    fontSize: 25, // Increase font size for better readability
     fontWeight: 'bold', // Make the font bold
     textAlign: 'center', // Center the text
+    width: '0%',
     paddingLeft: 50,
     paddingRight: 50,
+  },
+  signup:{
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  LoginButton: {
+    backgroundColor: '#d7d7d7', // Set button background color to blue
+    padding: 10, // Add padding inside the button
+    borderRadius: 20, // Add border radius for rounded corners
+    marginVertical: 10, // Add vertical margin for spacing
+    marginLeft:0,
+  },
+  SignUpText: {
+    color: '#51158C', // Set button text color to white
+    fontSize: 25, // Increase font size for better readability
+    fontWeight: 'bold', // Make the font bold
+    textAlign: 'center', // Center the text
+    paddingLeft: 40,
+    paddingRight: 40,
   },
 });
 
