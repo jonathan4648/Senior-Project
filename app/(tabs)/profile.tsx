@@ -1,12 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView,Platform, StyleSheet,TouchableOpacity,ScrollView } from 'react-native';
+import { Alert,SafeAreaView,Platform, StyleSheet,TouchableOpacity,ScrollView } from 'react-native';
 import { router }  from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons, Ionicons,Entypo} from '@expo/vector-icons';
+import {auth,db} from '../../FirebaseConfig'
+import {getAuth,deleteUser} from "firebase/auth"
+import { collection, query, deleteDoc, where, doc, getDocs } from 'firebase/firestore';
 
 export default function TabThreeScreen() {
     const navigation = useNavigation();
+
     const signOut = async () => {
         try {
         await router.replace('/');
@@ -47,88 +51,195 @@ export default function TabThreeScreen() {
         alert('Analytics Dashboard failed: '+ error.message);
       }
     }
+    //Delete the user data from database
+    const deleteAccount = async () => {
+      const auth = getAuth()
+      const user = auth.currentUser;
+      const todoscollection = collection(db,'todos');
+      console.log('test')
+        try{
+          /*
+          Query to get all the task from todo collection that has the user's ID 
+          Deletes all the task associated with the User
+          */
+          const taskDelete = query(todoscollection, where("userId", "==", user.uid))
+          const taskdata= await getDocs(taskDelete)
+          const nowdelete = taskdata.docs.map((taskDoc) => deleteDoc(taskDoc.ref))
+          await Promise.all(nowdelete);
+          console.log("task deleted")
+          /*
+          Gets the user id and deletes the user data from the user doc in the database
+          */
+          const userDoc = doc(db,'users', user.uid);
+          await deleteDoc(userDoc)
+          console.log('deleted user doc' + userDoc)
+          /*
+          Deletes the user email and password from the authentication in the database
+          */
+          await deleteUser(user);
+          console.log('deleted user account' + user?.email)
+          
+      } catch (error:any){
+        console.log(error)
+        alert('no user was deleted:' + error.message);
+      }
+    }
+    //Alert mesage before the user fully deletes their data as a "warning"
+    const alertMessage = () => {
+      //First message that warns user about deleting data
+      Alert.alert('Delete Account', 'Deleting your account will delete all your data and delete your account permanantly',[
+        {text: 'Cancel', style: 'cancel', onPress:() => {console.log('1st cancel pressed')}},
+        {text: 'Yes', 
+          onPress:() => {
+          //Second Warning message that fully deletes the user data if clicks "delete"
+          Alert.alert('Confirm Deletion','This will permantly delete your account.Are you sure ?',[
+            {text: 'Cancel', style: 'cancel', onPress:() =>{console.log('2nd Cancel pressed')}},
+            {text: 'Delete', onPress:() =>{deleteAccount(),router.replace('/')}} //deletes user data and routes back to login page
+          ])
+          }
+        }
+      ])
+    }
+
     return (
-    <SafeAreaView style={{flex:1}}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={styles.container1}>
+    <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
+        <View style={styles.TitleContainer}>
           <Text style={styles.mainTitle}>Profile</Text>
-          <TouchableOpacity onPress={(Editprofile) }>
-            <Text style={styles.EditProfile}>Edit your profile</Text>
-            <StatusBar style="auto"/>
-          </TouchableOpacity>
         </View>
-      <View style={styles.container2}>
-          <View style={styles.notifyIcon}>
-          <TouchableOpacity onPress={routeNotificationCenter}>
-            <Text style={styles.subTitle}>Notifications</Text>
-          </TouchableOpacity>
+        <View style={styles.separator}/>
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <View style={styles.container2}>
+            <TouchableOpacity onPress={Editprofile}>
+              <View style={styles.iconView}>
+                <MaterialCommunityIcons name="account-cog" size={24} color="black" />
+                <Text style={styles.subTitle}>Your Account</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={routeNotificationCenter}>
+              <View style={styles.iconView}>
+              <Ionicons name="notifications" size={24} color="black" />
+              <Text style={styles.subTitle}>Notifications</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={routeAnalytics}>
+                <View style={styles.iconView}>
+                  <Ionicons name="analytics-sharp" size={24} color="black" />
+                  <Text style={styles.subTitle}>Analytics</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <View style={styles.iconView}>
+                  <MaterialIcons name="widgets" size={24} color="black" />
+                  <Text style={styles.subTitle}>Widgets</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <View style={styles.iconView}>
+                  <Entypo name="slideshare" size={24} color="black" />
+                  <Text style={styles.subTitle}>Collaborate</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <View style={styles.iconView}>
+                  <Ionicons name="color-palette" size={24} color="black" />
+                  <Text style={styles.subTitle}>Theme</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={routeSettings}>
+                <View style={styles.iconView}>
+                  <MaterialIcons name="settings" size={24} color="black" />
+                  <Text style={styles.subTitle}>Settings</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <View style={styles.iconView}>
+                  <Text style={styles.subTitle}>About</Text>
+                  <MaterialIcons name="info" size={24} color="black" />
+                </View>
+            </TouchableOpacity>
+            <View style={styles.separator}/>
+            <TouchableOpacity onPress={alertMessage}>
+                <View style={styles.iconView}>
+                  <Text style={styles.deleteTitle}>Delete Account</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={signOut}>
+                <View style={styles.iconView}>
+                  <Text style={styles.subTitle}>Log Out</Text>
+                  <MaterialCommunityIcons name="login" size={24} color="black" />
+                </View>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={routeAnalytics}>
-              <Text style={styles.subTitle}>Analytics</Text>
-          </TouchableOpacity>
-          <Text style={styles.subTitle}>Widgets</Text>
-          <Text style={styles.subTitle}>Collabrate</Text>
-          <Text style={styles.subTitle}>About</Text>
-          <Text style={styles.subTitle}>Theme</Text>
-          <TouchableOpacity onPress={routeSettings}>
-              <Text style={styles.subTitle}>Settings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={signOut}>
-              <Text style={styles.subTitle}>Log Out</Text>
-          </TouchableOpacity>
-      </View>
-    </ScrollView>
+        </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
   scrollView: {
     padding: 20,
+    marginTop:5,
+    backgroundColor:'white',
   },
-  container1: {
-    flex: 1,
-    alignItems: 'center',
+  TitleContainer: {
+    flexDirection:'row',
+    marginBottom:5,
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0', // A softer white for a modern, minimalist background
-    padding: 30,
+    backgroundColor: 'white', // A softer white for a modern, minimalist background
+    
   },
   container2: {
+    marginLeft:-20,
+    marginRight:-20,
+    marginTop:-25,
     alignItems: 'flex-start',
     padding: 18, // A softer white for a modern, minimalist background
-    backgroundColor: '#f0f0f0', // A softer white for a modern, minimalist background
-    marginVertical: 0,
+    backgroundColor: '', // A softer white for a modern, minimalist background
+    marginBottom: 5,
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: 25,
     fontWeight: 'bold',
-    marginBottom: 10,
-    fontFamily: 'Verdana',
+    //fontFamily: 'Verdana',
   },
-  EditProfile: {
-    fontSize: 20,
-    fontWeight: 'light',
-    marginBottom: -100,
-    fontFamily: 'Arial',
-    justifyContent: 'center'
+  iconView:{
+    flexDirection:'row',
+    backgroundColor:'',
+    justifyContent:'center',
+    alignContent:'center',
+    gap:10,
   },
   notifyIcon:{
     flexDirection:'row',
-    backgroundColor:'#f0f0f0',
+    backgroundColor:'',
   },
   subTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 75, // Adjust spacing
+    marginBottom: 40, // Adjust spacing
     fontFamily: 'Arial',
+    marginTop:0,
+    padding:0,
+    marginLeft:-3,
+    //marginRight: -10,
+  },
+  deleteTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 30, // Adjust spacing
+    fontFamily: 'Arial',
+    marginTop:10,
+    marginLeft:-5,
+    padding:0,
+    color:'red',
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 1,
+    marginBottom:1,
     height: 1,
     width: '100%',
+    borderBottomColor:'black',
+    backgroundColor:'#cccccc',
   },
 });
 
