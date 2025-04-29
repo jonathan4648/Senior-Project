@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
 import { router } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { db } from '../../FirebaseConfig'; // Go up two levels to access FirebaseConfig.ts
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../FirebaseConfig';
+import { doc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-// Reward data and type outside of the component to avoid unnecessary re-renders
 type Reward = {
   id: number;
   title: string;
@@ -33,19 +32,47 @@ export default function RewardsTabScreen() {
   });
   const [bannerVisible, setBannerVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [isOnline, setIsOnline] = useState<boolean>(true); // Track if the user is online or offline
+  const [bonusVisible, setBonusVisible] = useState(false);
+  const [bonusFadeAnim] = useState(new Animated.Value(0));
+  const [isOnline, setIsOnline] = useState<boolean>(true);
   const userId = getAuth().currentUser?.uid;
 
-  // Fetch user data from AsyncStorage (offline-first approach)
+  // Fetch user data and handle login bonus
   useEffect(() => {
     const fetchUserData = async () => {
       if (userId) {
         try {
           const storedPoints = await AsyncStorage.getItem(`points_${userId}`);
           const storedRewards = await AsyncStorage.getItem(`claimedRewards_${userId}`);
-          if (storedPoints) {
-            setUserPoints(parseInt(storedPoints));
+          const lastLoginDate = await AsyncStorage.getItem(`lastLogin_${userId}`);
+
+          let points = storedPoints ? parseInt(storedPoints) : 0;
+          const today = new Date().toISOString().split('T')[0];
+
+          if (lastLoginDate !== today) {
+            points += 10; // Give daily login bonus
+            await AsyncStorage.setItem(`points_${userId}`, points.toString());
+            await AsyncStorage.setItem(`lastLogin_${userId}`, today);
+
+            // Show bonus animation
+            setBonusVisible(true);
+            Animated.timing(bonusFadeAnim, {
+              toValue: 1,
+              duration: 500,
+              useNativeDriver: true,
+            }).start();
+
+            setTimeout(() => {
+              Animated.timing(bonusFadeAnim, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+              }).start();
+              setBonusVisible(false);
+            }, 5000);
           }
+
+          setUserPoints(points);
           if (storedRewards) {
             setClaimedRewards(JSON.parse(storedRewards));
           }
@@ -58,15 +85,13 @@ export default function RewardsTabScreen() {
     fetchUserData();
 
     const unsubscribe = getAuth().onAuthStateChanged((user) => {
-      if (!user) {
-        router.replace('/');
-      }
+      if (!user) router.replace('/');
     });
 
     return () => unsubscribe();
   }, [userId]);
 
-  // Sync user data to Firestore when online
+  // Sync to Firestore when online
   useEffect(() => {
     if (isOnline && userId) {
       const syncDataToFirestore = async () => {
@@ -74,97 +99,88 @@ export default function RewardsTabScreen() {
           const userRef = doc(db, 'users', userId);
           await updateDoc(userRef, {
             points: userPoints,
-            claimedRewards: claimedRewards,
+            claimedRewards,
           });
           console.log('Data synced to Firestore');
         } catch (error) {
           console.error('Error syncing data to Firestore:', error);
         }
       };
-
       syncDataToFirestore();
     }
   }, [userPoints, claimedRewards, isOnline, userId]);
 
-  // Monitor connectivity changes
+  // Monitor network state
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOnline(state.isConnected ?? false);
-      if (state.isConnected) {
-        // Sync data to Firestore once back online
-        const syncDataToFirestore = async () => {
+      if (state.isConnected && userId) {
+        const sync = async () => {
           try {
-            if (userId) {
-              const userRef = doc(db, 'users', userId);
-              await updateDoc(userRef, {
-                points: userPoints,
-                claimedRewards: claimedRewards,
-              });
-              console.log('Data synced to Firestore');
-            }
-          } catch (error) {
-            console.error('Error syncing data to Firestore:', error);
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, {
+              points: userPoints,
+              claimedRewards,
+            });
+            console.log('Synced when back online');
+          } catch (err) {
+            console.error('Sync error:', err);
           }
         };
-        syncDataToFirestore();
+        sync();
       }
     });
 
     return () => unsubscribe();
   }, [userPoints, claimedRewards, userId]);
 
-  // Handle claiming a reward
+  // Claim reward
   const handleClaim = useCallback(
     async (rewardPoints: number, rewardIcon: 'star' | 'medal' | 'diamond') => {
-      Alert.alert(
-        'Are you sure?',
-        `Are you sure you want to claim this reward for ${rewardPoints} points?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Yes',
-            onPress: async () => {
-              if (userPoints >= rewardPoints) {
-                const newPoints = userPoints - rewardPoints;
-                setUserPoints(newPoints);
+      Alert.alert('Are you sure?', `Claim this reward for ${rewardPoints} points?`, [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Yes',
+          onPress: async () => {
+            if (userPoints >= rewardPoints) {
+              const newPoints = userPoints - rewardPoints;
+              setUserPoints(newPoints);
+              const updatedRewards = {
+                ...claimedRewards,
+                [rewardIcon]: claimedRewards[rewardIcon] + 1,
+              };
+              setClaimedRewards(updatedRewards);
 
-                setClaimedRewards((prevRewards) => ({
-                  ...prevRewards,
-                  [rewardIcon]: prevRewards[rewardIcon] + 1,
-                }));
+              try {
+                await AsyncStorage.setItem(`points_${userId}`, newPoints.toString());
+                await AsyncStorage.setItem(`claimedRewards_${userId}`, JSON.stringify(updatedRewards));
+              } catch (error) {
+                console.error('Error saving to AsyncStorage:', error);
+              }
 
-                // Save changes to AsyncStorage
-                try {
-                  await AsyncStorage.setItem(`points_${userId}`, newPoints.toString());
-                  await AsyncStorage.setItem(`claimedRewards_${userId}`, JSON.stringify(claimedRewards));
-                } catch (error) {
-                  console.error('Error saving data to AsyncStorage:', error);
-                }
+              setBannerVisible(true);
+              Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+              }).start();
 
-                setBannerVisible(true);
+              setTimeout(() => {
                 Animated.timing(fadeAnim, {
-                  toValue: 1,
+                  toValue: 0,
                   duration: 500,
                   useNativeDriver: true,
                 }).start();
+                setBannerVisible(false);
+              }, 5000);
 
-                setTimeout(() => {
-                  Animated.timing(fadeAnim, {
-                    toValue: 0,
-                    duration: 500,
-                    useNativeDriver: true,
-                  }).start();
-                  setBannerVisible(false);
-                }, 5000);
-
-                Alert.alert('Congrats!', 'Enjoy your reward!');
-              } else {
-                Alert.alert('Insufficient Points', "You don't have enough points for this reward.");
-              }
-            },
+              Alert.alert('Congrats!', 'Enjoy your reward!');
+            } else {
+              Alert.alert('Not enough points', "You don't have enough points.");
+            }
           },
-        ]
-      );
+        },
+      ]);
     },
     [userPoints, fadeAnim, claimedRewards, userId]
   );
@@ -207,9 +223,17 @@ export default function RewardsTabScreen() {
           ))}
         </View>
 
+        {/* Reward Claimed Banner */}
         {bannerVisible && (
           <Animated.View style={[styles.rewardClaimedBanner, { opacity: fadeAnim }]}>
             <Text style={styles.rewardClaimedText}>Reward Claimed!</Text>
+          </Animated.View>
+        )}
+
+        {/* Daily Bonus Banner */}
+        {bonusVisible && (
+          <Animated.View style={[styles.bonusBanner, { opacity: bonusFadeAnim }]}>
+            <Text style={styles.bonusText}>+10 Daily Bonus 🎉</Text>
           </Animated.View>
         )}
       </View>
@@ -323,6 +347,25 @@ const styles = StyleSheet.create({
   },
   rewardClaimedText: {
     color: colors.white,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  bonusBanner: {
+    position: 'absolute',
+    top: 110,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.gold,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    marginHorizontal: 20,
+  },
+  bonusText: {
+    color: colors.deepPurple,
     fontSize: 20,
     fontWeight: 'bold',
   },
