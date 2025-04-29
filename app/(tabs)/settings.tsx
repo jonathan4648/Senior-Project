@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Switch, StyleSheet, ScrollView } from "react-native";
+import { Switch, StyleSheet, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {View, Text} from '../../components/Themed'
 
 
 //Placeholder for settings screen

@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, View, Modal, Pressable} from 'react-native';
+import { StyleSheet, TextInput, FlatList, TouchableOpacity, Modal, Pressable} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from "react";
 import Card from "../../components/ui/card";
@@ -6,6 +6,7 @@ import Button from "../../components/ui/button";
 import { AlignRight, Bell, CheckCircle, Trash2 } from "lucide-react-native";
 import { auth, db } from '../../FirebaseConfig'
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
+import {View, Text} from '../../components/Themed'
 
 //Data fields required for each notification
 interface Notification {

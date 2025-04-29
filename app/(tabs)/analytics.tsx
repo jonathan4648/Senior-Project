@@ -1,8 +1,9 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from "react";
-import { StyleSheet, TextInput, FlatList, TouchableOpacity, Text, View, Modal, Pressable} from 'react-native';
+import { StyleSheet, TextInput, FlatList, TouchableOpacity, Modal, Pressable} from 'react-native';
 import { auth, db } from '../../FirebaseConfig'
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
+import {View, Text} from "../../components/Themed"
 
 // Define the Task Type
 interface Task {
