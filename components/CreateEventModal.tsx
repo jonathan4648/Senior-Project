@@ -29,7 +29,7 @@ export default function CreateEventModal({ visible, onClose, fetchTodos, user }:
   const todosCollection = collection(db, 'todos');
 
   //google maps api key 
-  const GOOGLE_MAPS_API_KEY = "AIzaSyAlkE0Q7pX0EGmIqRZHo2AcA3etixqn3kM";
+    const GOOGLE_MAPS_API_KEY = "AIzaSyBVwblnI9-jRqpaCT90LWT9U7Poy5wi_0I";
   console.log("Loaded API Key:", GOOGLE_MAPS_API_KEY);
 
 
@@ -75,6 +75,7 @@ export default function CreateEventModal({ visible, onClose, fetchTodos, user }:
           <Picker.Item label="High" value="High" />
         </Picker>
 
+              {/*
         <GooglePlacesAutocomplete
               placeholder="Search location"
               fetchDetails={true}
@@ -106,7 +107,8 @@ export default function CreateEventModal({ visible, onClose, fetchTodos, user }:
                 },
               }}
               enablePoweredByContainer={false}
-            />
+              />
+            */}
 
         <TouchableOpacity onPress={addTodo} style={styles.button}><Text>Add Event</Text></TouchableOpacity>
         <TouchableOpacity onPress={onClose} style={[styles.button, { backgroundColor: 'red' }]}><Text>Cancel</Text></TouchableOpacity>
