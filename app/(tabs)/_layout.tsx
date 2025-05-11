@@ -42,6 +42,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="rewards"
+        options={{
+          title: 'Rewards',
+          tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} iconSet='Feather' />,
+        }} 
+      />
+      <Tabs.Screen
         name="EditProfile"
         options={{
           title: 'Editing Profile',href: null}}/>
