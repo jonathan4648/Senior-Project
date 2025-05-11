@@ -6,9 +6,9 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 export default function Layout () {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer initialRouteName="Home">
+      <Drawer initialRouteName="home">
         <Drawer.Screen
-          name="Home" // This is the name of the page and must match the url from root
+          name="home" // This is the name of the page and must match the url from root
           options={{
             drawerLabel: 'Home',
             headerTitle: 'Homepage',

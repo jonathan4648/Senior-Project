@@ -53,6 +53,8 @@
     "react-native-google-autocomplete": "^0.2.0",
     "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-maps": "1.18.0",
+    "react-native-mask-input": "^1.2.3",
+    "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-paper": "^5.13.1",
     "react-native-picker": "^4.3.7",
     "react-native-reanimated": "~3.16.1",

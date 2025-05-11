@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { FontAwesome5 } from '@expo/vector-icons';
-import TabOneScreen from './(home)/Home';
+import TabOneScreen from './(home)/home';
 import Feather from '@expo/vector-icons/Feather'
 import TabBarIcon from '@/components/Icons'
 import {Drawer} from 'expo-router/drawer'
