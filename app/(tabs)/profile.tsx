@@ -62,14 +62,15 @@ export default function TabThreeScreen() {
           Query to get all the task from todo collection that has the user's ID 
           Deletes all the task associated with the User
           */
+          if (!user) {
+            throw new Error('No user is currently signed in.');
+          }
           const taskDelete = query(todoscollection, where("userId", "==", user.uid))
           const taskdata= await getDocs(taskDelete)
           const nowdelete = taskdata.docs.map((taskDoc) => deleteDoc(taskDoc.ref))
           await Promise.all(nowdelete);
           console.log("task deleted")
-          /*
-          Gets the user id and deletes the user data from the user doc in the database
-          */
+          
           const userDoc = doc(db,'users', user.uid);
           await deleteDoc(userDoc)
           console.log('deleted user doc' + userDoc)

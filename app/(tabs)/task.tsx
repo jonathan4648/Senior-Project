@@ -130,7 +130,7 @@ export default function TabTwoScreen() {
     //Routes to createTask file
     const toggleMenu = async () => {
         try {
-            await router.push('/createTask');
+            await router.push("/createTask");
             console.log('Task closed, opened createTask');
         }
         catch (error: any) {

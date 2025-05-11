@@ -8,7 +8,7 @@ import { getAuth } from 'firebase/auth';
 import { collection,getDocs, query, where, doc} from 'firebase/firestore';
 import React, { useCallback, useEffect, useState } from 'react';
 import { router,useFocusEffect } from 'expo-router';   
-import CreateEventModal from "../../../components/CreateEventModal"
+// import CreateEventModal from "../../../components/CreateEventModal"
 import AddButton from "../../../components/ui/AddButton"
 
 

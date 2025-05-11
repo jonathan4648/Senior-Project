@@ -4,7 +4,7 @@ import { Link, Tabs } from 'expo-router';
 import { Pressable, View, Text, TouchableOpacity, Image } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import Colors from '@/constants/Colors';
+import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { FontAwesome5 } from '@expo/vector-icons';
 import TabOneScreen from './(home)/home';

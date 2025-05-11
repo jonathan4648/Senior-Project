@@ -87,7 +87,7 @@ export default function CreateTask() {
     };
 
     //formatting the date
-    const formatDate = (date) => {
+    const formatDate = (date: Date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
@@ -161,7 +161,7 @@ export default function CreateTask() {
         if (!userLocation || !taskLocation) return;
             try {
             const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${taskLocation}&key=${GOOGLE_MAPS_API_KEY}`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${taskLocation}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
             );
             const data = await response.json();
             if (data.routes && data.routes.length > 0) {
