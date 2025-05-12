@@ -5,7 +5,7 @@ import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
 import { AlignRight, Bell, CheckCircle, Trash2 } from "lucide-react-native";
 import { auth, db } from '../../FirebaseConfig'
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where, Timestamp } from 'firebase/firestore';
 import {View, Text} from '../../components/Themed'
 
 //Data fields required for each notification
@@ -66,7 +66,9 @@ const NotificationCenter: React.FC = () => {
       id: doc.id,
       message: doc.data().message,
       read: doc.data().read,
-      userId: doc.data().userId
+      userId: doc.data().userId,
+      date: doc.data().date,
+      time: doc.data().time
     })) as Notification[];
     setNotifications(fetchedNotifications);
   };
@@ -76,14 +78,16 @@ const NotificationCenter: React.FC = () => {
   }, []);
 
   //Function to add a new notification with temporary placeholder message
-  const addNotification = async (message: string) => {
+  const addNotification = async (message: string, date: string, time: string) => {
     const tempid = Date.now().toString();
     const docRef = doc(collection(db, 'notifications'), tempid);
             var data = {
               id: tempid,
               message: message,
               read: false,
-              userId: auth.currentUser?.uid
+              userId: auth.currentUser?.uid,
+              date: date,
+              time: time
             }
     await setDoc(docRef, data);
     fetchNotifs();
