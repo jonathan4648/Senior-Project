@@ -141,6 +141,9 @@ export default function TabThreeScreen() {
                   <Text style={styles.subTitle}>Analytics</Text>
                 </View>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/widgets')}>
+              <Text style={styles.subTitle}>Widgets</Text>
+            </TouchableOpacity>
             <TouchableOpacity>
                 <View style={styles.iconView}>
                   <MaterialIcons name="widgets" size={24} color="black" />
