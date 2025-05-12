@@ -109,7 +109,7 @@ export default function CreateTask() {
         const docRef = doc(collection(db, 'notifications'), tempid);
             var data = {
                 id: tempid,
-                message: task,
+                message: task + "scheduled for " + selectedDate + " at " + time,
                 read: false,
                 userId: auth.currentUser?.uid,
                 time: time

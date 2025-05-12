@@ -70,14 +70,14 @@ const NotificationCenter: React.FC = () => {
       date: doc.data().date,
       time: doc.data().time
     })) as Notification[];
-    setNotifications(fetchedNotifications);
+    setNotifications(fetchedNotifications); //Set the notifications state to the fetched notifications
   };
 
   useEffect(() => {
     fetchNotifs();
   }, []);
 
-  //Function to add a new notification with temporary placeholder message
+  //Function to add a new notification with temporary placeholder message (deprecated, but still usable for testing)
   const addNotification = async (message: string, date: string, time: string) => {
     const tempid = Date.now().toString();
     const docRef = doc(collection(db, 'notifications'), tempid);

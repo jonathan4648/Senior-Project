@@ -51,6 +51,7 @@
     "react-native": "0.76.6",
     "react-native-calendars": "^1.1310.0",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-get-random-values": "^1.11.0",
     "react-native-google-autocomplete": "^0.2.0",
     "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-maps": "1.18.0",

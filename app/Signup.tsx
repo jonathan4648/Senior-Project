@@ -29,8 +29,21 @@ const index = () => {
             email: email,
             Firstname: Firstname,
             Lastname: Lastname,
+            tasksCompleted: 0
         }
         await setDoc(docRef, data);
+
+        //Create default notification when user signs up
+        const tempid = Date.now().toString();
+        const docRef2 = doc(collection(db, 'notifications'), tempid);
+                var data2 = {
+                  id: tempid,
+                  message: "Welcome to the app!",
+                  read: false,
+                  userId: auth.currentUser?.uid
+                }
+        await setDoc(docRef2, data2);
+        
         router.replace('/(tabs)/(home)/TodaySchedule');
       }
     } catch (error: any) {
