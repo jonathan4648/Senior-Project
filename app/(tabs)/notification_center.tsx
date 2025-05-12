@@ -112,7 +112,11 @@ const NotificationCenter: React.FC = () => {
                   <Text className="text-lg">{item.message}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center", flex: 1, justifyContent: "space-between" }}>
                     {!item.read && (
-                        <TouchableOpacity 
+                        <TouchableOpacity
+                          accessible={true}
+                          accessibilityLabel="Mark notification as read"
+                          accessibilityHint="Marks the notification as read"
+                          accessibilityRole="button"
                           onPress={() => markAsRead(item.id)}
                           style={{ flexDirection:"row", alignItems:"center", marginRight: 8 }}
                         >
@@ -121,6 +125,10 @@ const NotificationCenter: React.FC = () => {
                         </TouchableOpacity>
                     )}
                       <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="Delete notification"
+                        accessibilityHint="Deletes the notification"
+                        accessibilityRole="button"
                         onPress={() => deleteNotification(item.id)}
                         onPressIn={() => setHovered(item.id)}
                         onPressOut={() => setHovered(null)}

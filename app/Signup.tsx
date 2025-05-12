@@ -67,6 +67,7 @@ const index = () => {
             placeholderTextColor={'black'}
             value={Firstname} 
             onChangeText={setFname}
+            accessible={true}
           />
         </View>
         <View style={styles.inputbox}>
@@ -100,10 +101,10 @@ const index = () => {
           secureTextEntry
         />
         </View>
-        <TouchableOpacity style={styles.SignUpbutton} onPress={signUp}>
+        <TouchableOpacity accessible={true} style={styles.SignUpbutton} onPress={signUp}>
           <Text style={styles.LoginText}>Sign up</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.LoginButton} onPress={() => router.replace('/')}>
+        <TouchableOpacity accessible={true} style={styles.LoginButton} onPress={() => router.replace('/')}>
           <Text style={styles.SignUpText}>Login</Text>
         </TouchableOpacity>
         <Text>Already have an account?</Text>

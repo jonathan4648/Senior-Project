@@ -53,11 +53,11 @@ const index = () => {
                 secureTextEntry
             />
           </View>
-            <TouchableOpacity style={styles.loginbutton} onPress={signIn}>
+            <TouchableOpacity accessible={true} style={styles.loginbutton} onPress={signIn}>
                 <Text style={styles.LoginText}>Login</Text>
             </TouchableOpacity>
             <View style={styles.signup}>
-              <TouchableOpacity style={styles.signupButton} onPress={() => router.replace('/Signup')}>
+              <TouchableOpacity accessible={true} style={styles.signupButton} onPress={() => router.replace('/Signup')}>
                   <Text style={styles.SignUpText}>Sign up</Text>
               </TouchableOpacity>
               <Text style={{fontSize:15, fontWeight:'500'}}>Don't have an account?</Text>
