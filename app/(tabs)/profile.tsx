@@ -9,12 +9,17 @@ import {getAuth,deleteUser} from "firebase/auth"
 import { collection, query, deleteDoc, where, doc, getDocs } from 'firebase/firestore';
 import {Colors} from "../../constants/Colors"
 import Header from '@/components/ui/HeaderTitle'
+import React, { useState } from 'react';
+import TutorialModal from '@/components/TutorialModal'; // adjust the path as needed
+import { Feather } from '@expo/vector-icons';
 
 
 export default function TabThreeScreen() {
     const colorscheme = useColorScheme()
     const theme = colorscheme ? Colors[colorscheme] : Colors.light;
     const navigation = useNavigation();
+
+    const [showTutorial, setShowTutorial] = useState(false);
 
     const signOut = async () => {
         try {
@@ -115,6 +120,10 @@ export default function TabThreeScreen() {
       ])
     }
 
+    const startTutorial = () => {
+      setShowTutorial(true);
+    };
+
     return (
     <SafeAreaView style={{flex:1,backgroundColor:'auto'}}>
         <StatusBar style = 'auto'/>
@@ -139,14 +148,17 @@ export default function TabThreeScreen() {
                   <Text style={styles.subTitle}>Analytics</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/widgets')}>
-              <Text style={styles.subTitle}>Widgets</Text>
-            </TouchableOpacity>
             <TouchableOpacity>
                 <View style={styles.iconView}>
                   <MaterialIcons name="widgets" size={24} color="black" />
                   <Text style={styles.subTitle}>Widgets</Text>
                 </View>
+            </TouchableOpacity>      
+            <TouchableOpacity onPress={startTutorial}>
+              <View style={styles.iconView}>
+              <Feather name="book-open" size={24} color="black" />
+            <Text style={styles.subTitle}>View Tutorial</Text>
+              </View>
             </TouchableOpacity>
             <TouchableOpacity>
                 <View style={styles.iconView}>
@@ -186,6 +198,10 @@ export default function TabThreeScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
+        <TutorialModal
+          visible={showTutorial}
+          onClose={() => setShowTutorial(false)}
+        />
     </SafeAreaView>
   );
 }

@@ -10,7 +10,7 @@ import * as Location from 'expo-location';
 import {View, Text} from '../../components/Themed'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import 'react-native-get-random-values';
-//import CreateEventModal from '../../components/CreateEventModal';
+//import CreateEventModal from '@/components/CreateEventModal';
 
 interface SelectedLocation {
     formatted_address: string;
