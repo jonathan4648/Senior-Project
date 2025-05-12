@@ -66,7 +66,9 @@ export default function TabThreeScreen() {
           <TouchableOpacity onPress={routeAnalytics}>
               <Text style={styles.subTitle}>Analytics</Text>
           </TouchableOpacity>
-          <Text style={styles.subTitle}>Widgets</Text>
+          <TouchableOpacity onPress={() => router.push('/widgets')}>
+            <Text style={styles.subTitle}>Widgets</Text>
+          </TouchableOpacity>
           <Text style={styles.subTitle}>Collabrate</Text>
           <Text style={styles.subTitle}>About</Text>
           <Text style={styles.subTitle}>Theme</Text>

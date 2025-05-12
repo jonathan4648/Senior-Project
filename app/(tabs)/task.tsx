@@ -12,13 +12,6 @@ import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import * as Location from 'expo-location';
 
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import {
-  GoogleLocationDetailResult,
-  GoogleLocationResult,
-} from 'react-native-google-autocomplete';
-
-
 
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -80,7 +73,7 @@ export default function TabTwoScreen() {
 
     //edit button 
     const [editMode, setEditMode] = useState(false);
-    const handleEdit = (item) => {
+    const handleEdit = (item: any) => {
     setTask(item.task);
     setSelectedPriority(item.priority);
     setSelectedDate(item.date);
@@ -289,13 +282,13 @@ const handleSelectLocation = async (placeId: string) => {
     };
 
     //date selection
-    const onDayPress = (day) => {
+    const onDayPress = (day: any) => {
         setSelectedDate(day.dateString); // Update selectedDate with the YYYY-MM-DD string
         setShowCalendar(false); // Hide the calendar after selection
     };
 
     //view info 
-    const showTodoDetails = (item) => {
+    const showTodoDetails = (item: any) => {
     setSelectedTodoInfo(item);
     setInfoModalVisible(true);
 };
@@ -403,7 +396,7 @@ const hideTodoDetails = () => {
                    {/* changes to save when edit is true*/}
                   <TouchableOpacity style={styles.addButton} onPress={() => AddandClose(true, selectedTodoInfo?.id)}>
                       <Text style={styles.buttonText}>Save</Text>
-                   </TouchableOpacity>
+                   </TouchableOpacity> 
                   <TouchableOpacity 
                       style={styles.button} 
                       onPress={() => {
@@ -715,5 +708,4 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center'
     },
-});
-
+})};
