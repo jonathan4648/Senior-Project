@@ -1,14 +1,9 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable, View, Text, TouchableOpacity, Image } from 'react-native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
+import { MaterialCommunityIcons, FontAwesome5 , Feather, FontAwesome} from '@expo/vector-icons';
+import {Colors} from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { FontAwesome5 } from '@expo/vector-icons';
-import TabOneScreen from './(home)/home';
-import Feather from '@expo/vector-icons/Feather'
 import TabBarIcon from '@/components/Icons'
 import {Drawer} from 'expo-router/drawer'
 
@@ -35,6 +30,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="createTask"
+        options={{
+          title: 'Create Task', href: null}}/>
+      <Tabs.Screen
+        name="notification_center"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bell" color={color} iconSet='Feather'/>,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
@@ -42,7 +48,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="rewards"
+        name="Rewards"
         options={{
           title: 'Rewards',
           tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} iconSet='Feather' />,
@@ -53,21 +59,21 @@ export default function TabLayout() {
         options={{
           title: 'Editing Profile',href: null}}/>
       <Tabs.Screen
-        name="notification_center"
-        options={{
-          title: 'Notifications', href: null}}/>
-      <Tabs.Screen
         name="firebaseUtils"
         options={{
           title: 'firebaseUtils', href: null}}/>
       <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'settings', href: null}}/>
-      <Tabs.Screen
         name="analytics"
         options={{
           title: 'analytics', href: null}}/>
+      <Tabs.Screen
+        name="ThemeSwitch"
+        options={{
+          title: 'Theme', href: null}}/>
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'settings', href: null}}/>
       </Tabs> 
   );
 }

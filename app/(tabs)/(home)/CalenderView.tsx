@@ -11,18 +11,20 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import {View, Text} from '../../../components/Themed'
 import AddButton from "../../../components/ui/AddButton"
+import { FontAwesome6, Ionicons, MaterialCommunityIcons, Feather, AntDesign,MaterialIcons} from '@expo/vector-icons';
 
 interface Item {
   name: string;
   time: string;
   priority: string;
+  location: string;
 }
 export default function Calendar() {
   const [task, setTask] = useState<any>({});
   const auth = getAuth();
   const user = auth.currentUser;
   
-  const {refresh} = useLocalSearchParams();
+  //const {refresh} = useLocalSearchParams();
 
   //Opened the modal to create a new task
   const toggleMenu = async () => {
@@ -44,16 +46,7 @@ export default function Calendar() {
       });
     }
    }, [user]);
-  //refreshes the screens so that it can be updated with the latest data
-  useEffect(() => {
-    if (user) {
-      if (refresh === 'true') {
-          fetchTodos(user.uid);
-          router.replace('/(tabs)/(home)/CalenderView');
-      }
-    }
-  },[refresh]);
-
+  
   useFocusEffect(
     useCallback(() => {
       if (user) {
@@ -77,7 +70,7 @@ export default function Calendar() {
       if (!items[date]) {
         items[date] = [];// create an array for the date if it doesn't exist
       }
-      items[date].push({ name: todo.task, time: todo.time, priority:todo.priority }); //creates an item with task and time
+      items[date].push({ name: todo.task, time: todo.time, priority:todo.priority, location: todo.location }); //creates an item with task and time
     });
     return items;
   };
@@ -87,12 +80,16 @@ export default function Calendar() {
     const item = reservation as unknown as Item; // Cast to match your Item type
     return (
       <Card style={styles.container}>
-        <Card.Title title={item.name} titleStyle={{ fontWeight: 'bold' }}/>
+        <Card.Title title={item.name} titleStyle={styles.cardname}/>
         <Card.Content>
           <TouchableOpacity>
             <View style={styles.cardview}>
               <Text style={styles.cardContents}>  {item.time}</Text>
-              <Text style={styles.cardContents}>  {item.priority}</Text>
+              <Text style={styles.cardContents}>  Priority: {item.priority}</Text>
+              <View style={{flexDirection:'row',backgroundColor:'auto'}}>
+                <MaterialIcons name="location-pin" size={20} color="black"/>
+                <Text style={styles.cardContents}>{item.location}</Text>
+              </View>
             </View>
           </TouchableOpacity>
         </Card.Content>
@@ -120,16 +117,22 @@ const styles = StyleSheet.create({
   container: {
     flex:0,
     marginTop: 18,
-    marginBottom: 10,
+    marginBottom: 5,
     marginLeft: -2,
     padding: 0,
   },
+  cardname:{
+    fontWeight: 'bold', 
+    marginBottom:-5,
+    backgroundColor:'auto',
+  },
   cardview:{
-    flexDirection:'row',
+    flexDirection:'column',
     justifyContent:'flex-start',
     padding:0,
     flexWrap:'wrap',
     marginLeft:-5,
+    marginTop:-5,
     backgroundColor:'auto'
     
   },
@@ -137,6 +140,7 @@ const styles = StyleSheet.create({
     justifyContent:'space-between',
     alignItems:'center',
     padding:0,
-    backgroundColor:'auto'
+    backgroundColor:'auto',
+    marginTop:2,
   },
 });

@@ -1,17 +1,17 @@
 import { router} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, {useEffect, useState}from 'react'
-import { View,Text,StyleSheet, Button, TouchableOpacity , SafeAreaView, TouchableWithoutFeedback, Keyboard, Alert} from "react-native"
+import { StyleSheet, Button, TouchableOpacity , SafeAreaView, TouchableWithoutFeedback, Keyboard, Alert} from "react-native"
 import {db} from '../../FirebaseConfig';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
 import { auth } from '../../FirebaseConfig';
 import { getAuth, sendPasswordResetEmail, verifyBeforeUpdateEmail, deleteUser,updateEmail} from 'firebase/auth';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
-import { MaterialCommunityIcons} from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import MaskedInput  from 'react-native-mask-input';
-import { Mask } from 'react-native-svg';
+import {View, Text} from '../../components/Themed'
+import Header from '@/components/ui/HeaderTitle'
 
 export default function Editprofile() {
   const [users, setUserData] = useState<any>([]);
@@ -128,219 +128,223 @@ export default function Editprofile() {
 
   return (
     <GestureHandlerRootView>
-    <SafeAreaView style={{flex:1}}>
-      <View style={styles.goBack}>
-      <Text></Text>
-      <Button title="< Go back" onPress={() => router.replace('/profile')} />
-    </View>
-    <View style={styles.container1}>
-      <Text style={styles.mainTitle}>Editing profile</Text>
-      <StatusBar style="auto" />
-    </View>
-    <View style={styles.container2}>
-        {!NameEdit ? (
-          <TouchableOpacity onPress={() => {setIsEditing(true);setBdayedit(false); setEmailEdit(false);setPswrdEdit(false);setPhoneEdit(false);}}>
-            <View style={styles.iconview}>
-                <FontAwesome6 name="id-badge" size={24} color="black" />
-                <Text style={styles.name}>   Name</Text>
-            </View>
-          </TouchableOpacity>
-        ): (
-          <View>
-            <TouchableOpacity onPress={() => setIsEditing(false)}>
-              <Text style={styles.nametouchtoexit}>Name</Text>
+      <SafeAreaView style={{flex:1, backgroundColor:'white',}}>
+        <Header title="Edit Profile" showIcon={true} onPress={() => router.replace('/profile')}/>
+        <View style={styles.container2}>
+          {!NameEdit ? (
+            <TouchableOpacity onPress={() => {setIsEditing(true);setBdayedit(false); setEmailEdit(false);setPswrdEdit(false);setPhoneEdit(false);}}>
+              <View style={styles.iconview}>
+                  <FontAwesome6 name="id-badge" size={24} color="black" />
+                  <Text style={styles.name}>   Name</Text>
+              </View>
             </TouchableOpacity>
-            <Text>First name:</Text>
-            <TextInput
-              style={styles.nameinput}
-              value={Firstname}
-              onChangeText={(text) => {
-              if (/^[a-zA-Z\s]*$/.test(text)) {
-                setFirstName(text);
-              } else {
-                alert('Only letters and spaces are allowed for the first name.');
-              }
-              }}
-              placeholder='  First name'
-              autoFocus={true}
-            />
-            <Text>Last name:</Text>
-            <TextInput
-              style={styles.nameinput}
-              placeholder=' Last name'
-              value={Lastname}
-              onChangeText={(text) => {
+          ): (
+            <View>
+              <TouchableOpacity onPress={() => setIsEditing(false)}>
+                <Text style={styles.nametouchtoexit}>Name</Text>
+              </TouchableOpacity>
+              <Text>First name:</Text>
+              <TextInput
+                style={styles.nameinput}
+                value={Firstname}
+                onChangeText={(text) => {
                 if (/^[a-zA-Z\s]*$/.test(text)) {
-                  setLastName(text);
+                  setFirstName(text);
                 } else {
                   alert('Only letters and spaces are allowed for the first name.');
                 }
                 }}
-              autoFocus={true}
-            />
-            <TouchableOpacity style={styles.savebutton} onPress={() => changeName(Firstname, Lastname)}>
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-
-        {!BirthdayEdit ? (
-          <TouchableOpacity onPress={() => {setBdayedit(true); setIsEditing(false);setEmailEdit(false);setPswrdEdit(false);setPhoneEdit(false)}}>
-              <View style={styles.iconview}>
-              <FontAwesome6 name="cake-candles" size={24} color="black" />
-              <Text style={styles.name}>   Birthday</Text>
-              </View>
-          </TouchableOpacity>
-        ): (
-          <View style={styles.container3}>
-            <TouchableOpacity onPress={() => setBdayedit(false)}>
-              <Text style={styles.nametouchtoexit}>Birthday</Text>
-            </TouchableOpacity>
-            <Text>Birthday date:</Text>
-              <TouchableOpacity onPress={() => setOpen(true)}>
-                <TextInput
-                  style={styles.nameinput}
-                  placeholder='Month/Day/Year'
-                  value={Birthday ?
-                    Birthday.toLocaleDateString('en-US') // Format the date to a readable string
-                    : 'Select date'} // Fallback if Birthday is null
-                  autoFocus={true}
-                  editable={true}
-                  pointerEvents='none' // Prevent keyboard from appearing when tapping the input
-                  
-                />
-              </TouchableOpacity>
-              <DateTimePickerModal
-              testID="dateTimePicker"
-              onConfirm={(date) => {setBirthday(date);setOpen(false)}} // Set the date and close the picker
-              mode={'date'}
-              display= {'inline'} // Use the default display for the date picker
-              onCancel={() => setOpen(false)}
-              isVisible={open} // Use the state to control visibility of the date picker)}
-            />
-            <TouchableOpacity style={styles.savebutton} onPress={() => changeBday(Birthday)}>
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-
-        {!Passwordreset ?(
-        <TouchableOpacity onPress={() =>{setPswrdEdit(true);setEmailEdit(false); setBdayedit(false); setIsEditing(false);setPhoneEdit(false)}}>
-              <View style={styles.iconview}>
-              <FontAwesome6 name="user-lock" size={24} color="black" />
-              <Text style={styles.name}>  Password</Text>
-              </View>
-        </TouchableOpacity>
-        ):(
-          <View style={styles.container3}>
-            <TouchableOpacity onPress= {() => {setPswrdEdit(false)}}>
-              <Text style={styles.nametouchtoexit}>Password</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.savebutton} onPress={() => changePswrd()}>
-              <Text style={styles.buttonText}>Reset Password</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-
-        {!EmailEdit ? (
-          <TouchableOpacity onPress={() => {setEmailEdit(true); setBdayedit(false); setIsEditing(false);setPswrdEdit(false);setPhoneEdit(false)}}>
-          <View style={styles.iconview}>
-              <MaterialCommunityIcons name="email-edit" size={24} color="black" />
-              <Text style={styles.name}>  Email</Text>
-              </View>
-          </TouchableOpacity>
-        ): (
-          <View style={styles.container3}>
-            <TouchableOpacity onPress={() => setEmailEdit(false)}>
-              <Text style={styles.nametouchtoexit}>Email</Text>
-            </TouchableOpacity>
-            <Text>Current Email:</Text>
-            <TextInput
-              style={styles.nameinput}
-              placeholder= {Email}
-              value ={Email}
-              autoFocus={true}
-            />
-            <Text>New Email:</Text>
-            <TextInput
-              style={styles.nameinput}
-              value={NewEmail}
-              onChangeText={setNewEmail}
-              placeholder='Enter new email' // Placeholder for the new email input
-              pointerEvents='auto' // Allow interaction with this input
-              
-              
-            />
-            <TouchableOpacity style={styles.savebutton} onPress={() => changeEmail(NewEmail)}>
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {!PhoneEdit ? (
-          <TouchableOpacity onPress={() => {setPhoneEdit(true);setBdayedit(false); setIsEditing(false);setEmailEdit(false);setPswrdEdit(false)}}>
-              <View style={styles.iconview}>
-              <FontAwesome6 name="phone" size={24} color="black" />
-              <Text style={styles.name}>   Phone Number</Text>
-              </View>
-          </TouchableOpacity>
-        ): (
-          <View style={styles.container3}>
-            <TouchableOpacity onPress={() => setPhoneEdit(false)}>
-              <Text style={styles.nametouchtoexit}>Phone Number</Text>
-            </TouchableOpacity>
-            <Text>Phone Number:</Text>
-              <MaskedInput
-                style ={styles.nameinput}
-                placeholder="1+(000)000-0000" // Placeholder for the input
-                mask = {['(', '1', ')', '+', /\d/, /\d/,/\d/,'-', /\d/, /\d/, /\d/,'-',/\d/, /\d/, /\d/,/\d/]} // Mask for the phone number format
-                showObfuscatedValue={true} // Show the actual input instead of asterisks
-                onChangeText={(formatted ) => {setPhoneNum(formatted)}}
-                value={PhoneNum}
-                autoFocus={true} // Auto-focus the input when it appears
-                pointerEvents='auto' // Allow interaction with this input
-                editable={true} // Make sure the input is editable
-                maxLength={16} // Limit the length of the input to match the mask (1+(000)000-0000)
+                placeholder='  First name'
+                autoFocus={true}
               />
-            <TouchableOpacity style={styles.savebutton} onPress={() => changePhoneNumber(PhoneNum)}>
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+              <Text>Last name:</Text>
+              <TextInput
+                style={styles.nameinput}
+                placeholder=' Last name'
+                value={Lastname}
+                onChangeText={(text) => {
+                  if (/^[a-zA-Z\s]*$/.test(text)) {
+                    setLastName(text);
+                  } else {
+                    alert('Only letters and spaces are allowed for the first name.');
+                  }
+                  }}
+                autoFocus={true}
+              />
+              <TouchableOpacity style={styles.savebutton} onPress={() => changeName(Firstname, Lastname)}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-      </View>
+
+          {!BirthdayEdit ? (
+            <TouchableOpacity onPress={() => {setBdayedit(true); setIsEditing(false);setEmailEdit(false);setPswrdEdit(false);setPhoneEdit(false)}}>
+                <View style={styles.iconview}>
+                <FontAwesome6 name="cake-candles" size={24} color="black" />
+                <Text style={styles.name}>   Birthday</Text>
+                </View>
+            </TouchableOpacity>
+          ): (
+            <View style={styles.container3}>
+              <TouchableOpacity onPress={() => setBdayedit(false)}>
+                <Text style={styles.nametouchtoexit}>Birthday</Text>
+              </TouchableOpacity>
+              <Text>Birthday date:</Text>
+                <TouchableOpacity onPress={() => setOpen(true)}>
+                  <TextInput
+                    style={styles.nameinput}
+                    placeholder='Month/Day/Year'
+                    value={Birthday ?
+                      Birthday.toLocaleDateString('en-US') // Format the date to a readable string
+                      : 'Select date'} // Fallback if Birthday is null
+                    autoFocus={true}
+                    editable={true}
+                    pointerEvents='none' // Prevent keyboard from appearing when tapping the input
+                    
+                  />
+                </TouchableOpacity>
+                <DateTimePickerModal
+                testID="dateTimePicker"
+                onConfirm={(date) => {setBirthday(date);setOpen(false)}} // Set the date and close the picker
+                mode={'date'}
+                display= {'inline'} // Use the default display for the date picker
+                onCancel={() => setOpen(false)}
+                isVisible={open} // Use the state to control visibility of the date picker)}
+              />
+              <TouchableOpacity style={styles.savebutton} onPress={() => changeBday(Birthday)}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+
+          {!Passwordreset ?(
+          <TouchableOpacity onPress={() =>{setPswrdEdit(true);setEmailEdit(false); setBdayedit(false); setIsEditing(false);setPhoneEdit(false)}}>
+                <View style={styles.iconview}>
+                <FontAwesome6 name="user-lock" size={24} color="black" />
+                <Text style={styles.name}>  Password</Text>
+                </View>
+          </TouchableOpacity>
+          ):(
+            <View style={styles.container3}>
+              <TouchableOpacity onPress= {() => {setPswrdEdit(false)}}>
+                <Text style={styles.nametouchtoexit}>Password</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.savebutton} onPress={() => changePswrd()}>
+                <Text style={styles.buttonText}>Reset Password</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+
+          {!EmailEdit ? (
+            <TouchableOpacity onPress={() => {setEmailEdit(true); setBdayedit(false); setIsEditing(false);setPswrdEdit(false);setPhoneEdit(false)}}>
+            <View style={styles.iconview}>
+                <MaterialCommunityIcons name="email-edit" size={24} color="black" />
+                <Text style={styles.name}>  Email</Text>
+                </View>
+            </TouchableOpacity>
+          ): (
+            <View style={styles.container3}>
+              <TouchableOpacity onPress={() => setEmailEdit(false)}>
+                <Text style={styles.nametouchtoexit}>Email</Text>
+              </TouchableOpacity>
+              <Text>Current Email:</Text>
+              <TextInput
+                style={styles.nameinput}
+                placeholder= {Email}
+                value ={Email}
+                autoFocus={true}
+              />
+              <Text>New Email:</Text>
+              <TextInput
+                style={styles.nameinput}
+                value={NewEmail}
+                onChangeText={setNewEmail}
+                placeholder='Enter new email' // Placeholder for the new email input
+                pointerEvents='auto' // Allow interaction with this input
+                
+                
+              />
+              <TouchableOpacity style={styles.savebutton} onPress={() => changeEmail(NewEmail)}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {!PhoneEdit ? (
+            <TouchableOpacity onPress={() => {setPhoneEdit(true);setBdayedit(false); setIsEditing(false);setEmailEdit(false);setPswrdEdit(false)}}>
+                <View style={styles.iconview}>
+                <FontAwesome6 name="phone" size={24} color="black" />
+                <Text style={styles.name}>   Phone Number</Text>
+                </View>
+            </TouchableOpacity>
+          ): (
+            <View style={styles.container3}>
+              <TouchableOpacity onPress={() => setPhoneEdit(false)}>
+                <Text style={styles.nametouchtoexit}>Phone Number</Text>
+              </TouchableOpacity>
+              <Text>Phone Number:</Text>
+                <MaskedInput
+                  style ={styles.nameinput}
+                  placeholder="1+(000)000-0000" // Placeholder for the input
+                  mask = {['(', '1', ')', '+', /\d/, /\d/,/\d/,'-', /\d/, /\d/, /\d/,'-',/\d/, /\d/, /\d/,/\d/]} // Mask for the phone number format
+                  showObfuscatedValue={true} // Show the actual input instead of asterisks
+                  onChangeText={(formatted ) => {setPhoneNum(formatted)}}
+                  value={PhoneNum}
+                  autoFocus={true} // Auto-focus the input when it appears
+                  pointerEvents='auto' // Allow interaction with this input
+                  editable={true} // Make sure the input is editable
+                  maxLength={16} // Limit the length of the input to match the mask (1+(000)000-0000)
+                />
+              <TouchableOpacity style={styles.savebutton} onPress={() => changePhoneNumber(PhoneNum)}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+        </View>
       </SafeAreaView>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  goBack:
-  {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    alignItems: 'flex-start',
+  TitleContainer: {
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent: 'flex-start',
+    backgroundColor: '', // A softer white for a modern, minimalist background
+    marginBottom:12,
+    gap:54,
   },
-  container1: {
-    flexShrink: 1,
-    alignItems: 'center',
-    marginBottom: 2,
-    padding: 20,
+  BackButton:{
+    justifyContent:'flex-start',
+    flexDirection:'row',
+    color:'black',
+    fontSize:18,
+    fontWeight:'bold',
   },
   container2: {
+    marginTop:4,
     flexShrink: 1,
     alignItems: 'flex-start',
     padding: 20,
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: 25,
     fontWeight: 'bold',
-    marginBottom: 2,
-    color: '#1A237E',
+    color: 'black',
+    //fontFamily:'Verdana'
+  },
+  separator: {
+    marginVertical: 1,
+    marginBottom:1,
+    height: 1,
+    width: '100%',
+    borderBottomColor:'black',
+    backgroundColor:'#cccccc',
   },
   subTitle: {
     fontSize: 24,
@@ -419,6 +423,7 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     fontSize: 24,
     fontWeight: 'light',
+    marginTop:20,
     marginBottom: 50, // Adjust spacing
     fontFamily: 'Arial', // You can change this to other available fonts
   }
