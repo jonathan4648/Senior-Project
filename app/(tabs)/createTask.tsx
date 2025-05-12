@@ -1,16 +1,16 @@
 import { StyleSheet, TextInput, FlatList, TouchableOpacity,SafeAreaView, Modal,Platform,ActivityIndicator} from 'react-native';
 import React, { useState, useEffect } from 'react';
-// project db and firestore imported from FirebaseConfig 
 import { db } from '../../FirebaseConfig';
-// tools imported from firebase/firestore and firebase/auth 
 import { Picker } from '@react-native-picker/picker';
 import { router, useLocalSearchParams }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import * as Location from 'expo-location';
-import { Title } from 'react-native-paper';
 import {View, Text} from '../../components/Themed'
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import 'react-native-get-random-values';
+import CreateEventModal from '@/components/CreateEventModal';
 
 interface SelectedLocation {
     formatted_address: string;
@@ -39,41 +39,27 @@ export default function CreateTask() {
     //Paramaters from Task.tsx routed to this page
     const params = useLocalSearchParams();
     const isEdit = params.isEdit === 'true' ? true : false;
-    const getParam = (key: keyof typeof params, fallback: string) => 
-                    isEdit ? (params[key] as string) : fallback;
-    const {refresh2} = useLocalSearchParams();
     //Initialize the Items variables 
     const [task, setTask] = useState<string>();
     const [selectedPriority, setSelectedPriority] = useState<string>();
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0,10)); // Initialize with today's date (YYYY-MM-DD)
     const [time, setTime] = useState<string>();
     const [taskLocation, setTaskLocation] = useState<string>();
+    const [searchText, setSearchText] = useState<string>('');
     const [travelTime, setTravelTime] = useState<string>();
     const [distance, setDistance] = useState<string>();
-
     const [todos, setTodos] = useState<any>([]);
     const auth = getAuth();
     const user = auth.currentUser;
     const todosCollection = collection(db, 'todos');
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+    //const [showCreateEventModal, setShowCreateEventModal] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [showCalendar, setShowCalendar] = useState(false);
-    //const for location services
-    const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
-    const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
-    const [hasLocationPermission, setHasLocationPermission] = useState(false);
-    const [predictions, setPredictions] = useState([]);
-    const [showPredictions, setShowPredictions] = useState(false);
-    const [searchQuery, setSearchQuery] = useState<string>('');
-    const [searchResults, setSearchResults] = useState<Prediction[]>([]);
-    const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    //information icon
-    const [infoModalVisible, setInfoModalVisible] = useState(false); // Modal for task info
-    const [selectedTodoInfo, setSelectedTodoInfo] = useState<TodoItem | null>(null); // Selected todo for info modal
+
+    const GOOGLE_MAPS_API_KEY = "";
 
     //Fetches data from database
     const fetchTodos = async () => {
@@ -123,104 +109,44 @@ export default function CreateTask() {
     
     }};
 
-    const handleSearch = async (text: string) => {
-    setTaskLocation(text); // Update taskLocation immediately
-    if (text.length > 2) {
-        try {
-            const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY; //Move this line.
-            console.log("API KEY inside handleSearch:", GOOGLE_MAPS_API_KEY);
-            let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&key=${GOOGLE_MAPS_API_KEY}`;
-            if (userLocation) {
-                url += `&location=${userLocation.latitude},${userLocation.longitude}&radius=20000`;
-            }
-            console.log("API URL:", url); // Debugging: Check the URL
-            const response = await fetch(url);
-            const data = await response.json();
-            console.log("API Response:", data); // Debugging: Check the response
-
-            if (data.predictions) {
-                setPredictions(data.predictions);
-                setShowPredictions(true);
-            } else {
-                setPredictions([]);
-                setShowPredictions(false);
-            }
-        } catch (error) {
-            console.error('Error fetching autocomplete predictions:', error);
-            console.log("Api Error:", error);
-            setPredictions([]);
-            setShowPredictions(false);
-        }
-    } else {
-        setPredictions([]);
-        setShowPredictions(false);
-    }
-    };
-
-    const calculateDirections = async () => {
-        if (!userLocation || !taskLocation) return;
-            try {
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${taskLocation}&key=${GOOGLE_MAPS_API_KEY}`
-            );
-            const data = await response.json();
-            if (data.routes && data.routes.length > 0) {
-                const route = data.routes[0];
-                const leg = route.legs[0];
-                setTravelTime(leg.duration.text);
-                setDistance(leg.distance.text);
-            } else {
-                setTravelTime('Directions not found');
-                setDistance('Directions not found');
-            }
-            } catch (error) {
-            console.error('Error calculating directions:', error);
-            setTravelTime('Error calculating directions');
-            setDistance('Error calculating directions');
-            }
-        };
-    
-    const selectPrediction = (prediction: Prediction) => {
-        setTaskLocation(prediction.description);
-        setPredictions([]);
-        setShowPredictions(false);
-    };
     // Closes the createtask menu and saves task to firebase
-    const AddandClose = async (isEdit:Boolean) => {
+    const AddandClose = async (isEdit: Boolean) => {
         console.log("AddandClose function called");
         console.log("Edit is:", isEdit);
         if (isEdit === true) {
-            const todoDoc = doc(db, 'todos', params.id as string);
-            console.log("Opened todoDoc");
-            await updateDoc(todoDoc, {
-                task: task || params.task,
-                priority: selectedPriority || params.priority,
-                date: selectedDate || params.date,
-                time: time || params.time,
-                location: taskLocation || params.location,
-                travelTime: travelTime || params.travelTime,
-                distance: distance || params.distance,
-            });
-            console.log("Task updated successfully"); 
-            await router.back()
-            //await router.replace('/task?refresh=true') 
-        } 
-        else {
-            // close file and move to task.tsx and refresh screen when routed back
-            console.log("Created new task :", task);
+            if (params.id) { // Ensure the id parameter is present
+                console.log("Editing task with ID:", params.id);
+                const todoDoc = doc(db, 'todos', params.id as string); // Use params.id for the document reference
+                console.log("Opened todoDoc with ID:", params.id);
+                await updateDoc(todoDoc, {
+                    task: task || params.task,
+                    priority: selectedPriority || params.priority,
+                    date: selectedDate || params.date,
+                    time: time || params.time,
+                    location: taskLocation || params.location,
+                    travelTime: travelTime || params.travelTime,
+                    distance: distance || params.distance,
+                });
+                console.log("Task updated successfully");
+            } else {
+                console.error("Error: Task ID is missing for editing.");
+            }
+        } else {
+            console.log("Created new task:", task);
             await addTodo();
-            await router.back()
-            //await router.replace('/task?refresh=true') 
         }
-            setTask('');
-            setSelectedPriority('');
-            setSelectedDate('');
-            setTime('');
-            setTaskLocation('');
-            setTravelTime('');
-            setDistance('');
-            setShowCalendar(false);
-            console.log("Exited created task")
+        // Reset fields
+        setTask('');
+        setSelectedPriority('');
+        setSelectedDate('');
+        setTime('');
+        setTaskLocation('');
+        setSearchText('');
+        setTravelTime('');
+        setDistance('');
+        setShowCalendar(false);
+        console.log("Exited created task");
+        await router.back();
     };
     // Resets the input text to be empty and routes back to task.tsx
     const cancelFeature = async () => {
@@ -229,6 +155,7 @@ export default function CreateTask() {
         setSelectedDate('');
         setTime('');
         setTaskLocation('');
+        setSearchText('');
         setTravelTime('');
         setDistance('');
         setShowCalendar(false);
@@ -236,24 +163,71 @@ export default function CreateTask() {
         router.back();
     }
     
-
+    const GooglePlacesInput = () => {
+        return (
+            //<View style={styles.LocateContainer}>
+                <GooglePlacesAutocomplete
+                    placeholder="Search location"
+                    fetchDetails={true}
+                    onPress={(data, details = null) => {
+                        console.log("Selected data:", data);
+                        console.log("Selected details:", details);
+                        if (details) {
+                            const address = data.description;
+                            const lat = details.geometry.location.lat;
+                            const lng = details.geometry.location.lng;
+                            setTaskLocation(address);
+                            setSearchText(address);
+                            //setTaskLocation(`📍 ${address}\n🗺️ Lat: ${lat}, Lng: ${lng}`);
+                            console.log("Selected Location:", address, lat, lng);
+                        } else {
+                            console.error("Details not available for the selected location.");
+                        }
+                    }}
+                    query={{
+                        key: GOOGLE_MAPS_API_KEY,
+                        language: 'en',
+                    }}
+                    styles={{
+                        
+                        //container: styles.LocateContainer,
+                        textInputContainer: styles.inputContainer, // Match the input container style
+                        textInput: styles.Locationinput, // Match the input style
+                        listView: styles.autocompleteListView, // Style the dropdown
+                    }}
+                    textInputProps={{
+                        //pointerEvents: 'box-none', // Disable interaction with the TextInput
+                        //value: searchText,
+                        //onChangeText: (text) => setSearchText(text),
+                        editable: true,
+                    }}
+                    onFail={(error) => {
+                        console.log("Autocomplete error", error);
+                    }}
+                    enablePoweredByContainer={false}
+                    debounce={200} // Add debounce to reduce API calls
+                    minLength={2} // Minimum characters before triggering search
+                />
+            //</View>
+        );
+    };
 return(
     <SafeAreaView style={{flex:1}}>
         <View style={styles.TitleContainer}>
             <Text style={styles.mainTitle}>
             {isEdit? 'Editing Task': 'Creating Task'}</Text>
         </View>
-    <View style={styles.menuContainer}>
-        <View style={styles.tasktitle}>
-            <Text style={{fontWeight:'bold'}}>Task: {params.task}</Text>
-                <TextInput
-                    placeholder={isEdit? "New task": "Enter Task"}
-                    value={task}
-                    onChangeText={(text) => setTask(text)}
-                    style={styles.input}
-                    editable={true}
-                    maxLength={40}/>    
-        </View>
+        <View style={styles.menuContainer}>
+            <View style={styles.tasktitle}>
+                <Text style={{fontWeight:'bold'}}>Task: {params.task}</Text>
+                    <TextInput
+                        placeholder={isEdit? "New task": "Enter Task"}
+                        value={task}
+                        onChangeText={(text) => setTask(text)}
+                        style={styles.input}
+                        editable={true}
+                        maxLength={40}/>    
+            </View>
         {/* time input  */}
         <View style={styles.tasktitle}>
             <Text style={{fontWeight:'bold'}}>Time: {params.time}</Text>
@@ -279,19 +253,20 @@ return(
                 isVisible={showTimePicker} // Use the state to control visibility of the date picker
                 />
         </View>
-         {/* Locaiton services */}
-          <View style={styles.tasktitle}>
-          <Text style={{fontWeight:'bold'}}>Location: {params.location}</Text>
+        {/* Locaiton services */}
+        <View style={styles.tasktitle}>
+            <Text style={{fontWeight:'bold',marginBottom:10}}>Location: {params.location}</Text>
             <TextInput
-                placeholder="Location"
-                value={taskLocation}
-                onChangeText={handleSearch} // search for a location 
                 style={styles.input}
-                />
-              <TouchableOpacity style={styles.locationButton} onPress={calculateDirections}>
-                  <Text style={styles.buttonText}>Get Directions</Text>
-              </TouchableOpacity>
-          </View>
+                placeholder="Your location:"
+                value={searchText}
+                editable={false} // Make the TextInput read-only
+                pointerEvents='none' // Disable interaction with the TextInput
+                    />
+            <View style={styles.inputContainer}>
+                <GooglePlacesInput/>  
+            </View>   
+        </View>
           {/*Date assigned*/}
           <View style={styles.tasktitle}>
           <Text style={{fontWeight:'bold'}}>Date: {params.date}</Text>
@@ -355,18 +330,6 @@ return(
                   <Text style={styles.buttonText}>Clear</Text>
             </TouchableOpacity>
         </View>
-          {showPredictions && (
-          <FlatList
-              data={predictions}
-                renderItem={({ item }: { item: Prediction }) => (
-                  <TouchableOpacity style={styles.predictionItem} onPress={() => selectPrediction(item)}>
-                      <Text>{item.description}</Text>
-                  </TouchableOpacity>
-              )}
-              keyExtractor={(item, index) => index.toString()}
-              style={styles.predictionsList}
-          />
-          )}
          {/* changes to save when edit is true*/}
         <TouchableOpacity style={styles.addButton} onPress={() => AddandClose(isEdit)}>
             <Text style={styles.buttonText}>Save</Text>
@@ -407,27 +370,48 @@ const styles = StyleSheet.create({
         backgroundColor:'auto'
     },
     inputContainer: {
+        height: 40,
+        borderWidth: 0,
+        borderRadius: 10,
+        marginRight:0,
+        marginBottom: 20, // Add margin to separate input and button
         flexDirection: 'row',
         //justifyContent: 'space-between',
         alignItems: 'center',
-        width: '100%',
+        width: 360,
         padding: 0,
-        color:'auto'
+        color:'auto',
+        backgroundColor: '',
+        borderColor: 'gray',
+        //zIndex: 9999,
     },
     input: {
         height: 40,
         borderColor: 'gray',
         borderWidth: 1,
         padding: 10,
+        marginTop:10,
         marginRight: 7, // Add margin to separate input and button
-        marginBottom: 10, // Add margin to separate input and list
+        marginBottom: 20, // Add margin to separate input and list
         borderRadius: 10,
         minHeight: 20,
         width: 350,
         marginVertical: 10,
         fontSize: 16,
-        
-
+    },
+    Locationinput: {
+        height: 40,
+        width: 350, // Fixed width
+        borderColor: 'gray',
+        borderWidth: 1,
+        padding: 0,
+        marginRight: 7, // Add margin to separate input and button
+        marginBottom: 0, // Add margin to separate input and list
+        borderRadius: 10,
+        marginVertical: 10,
+        fontSize: 16,
+        gap:10,
+        backgroundColor: '',
     },
     dateinput: {
         height: 40,
@@ -441,8 +425,6 @@ const styles = StyleSheet.create({
         width: 350,
         marginVertical: 10,
         fontSize: 16,
-        
-
     },
     locationButton: {
         padding: 7,
@@ -514,6 +496,38 @@ const styles = StyleSheet.create({
         zIndex: 100,
         maxHeight: 200,
     },
+    LocateContainer: {
+        position: 'relative',
+        //zIndex: 9999,
+        flex: 1,
+        //paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingHorizontal: 0,
+        backgroundColor: '',
+        marginBottom: 0, // Add margin to separate input and list
+    },
+    listView: {
+        backgroundColor: '#fff',
+        width: 350,
+    },
+    result: {
+        backgroundColor: '',
+        width: 350,
+        marginTop: 20,
+        fontSize: 16
+    },
+    autocompleteListView: {
+        position: 'absolute',
+        backgroundColor: '',
+        borderWidth: 0.4,
+        borderColor: 'gray',
+        borderRadius: 10,
+        marginTop: 10,
+        top: 50, // Adjust as needed
+        maxHeight: 200, // Limit the height of the dropdown
+        overflow: 'hidden', // Ensure content doesn't overflow
+        width: 362, // Match the width of the input
+        zIndex: 999, // Ensure dropdown appears above other elements
+    }
 
 
 });

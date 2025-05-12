@@ -1,12 +1,11 @@
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, SafeAreaView, Modal,Platform,ActivityIndicator} from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useCallback} from 'react';
 import { db } from '../../FirebaseConfig';
 import { Picker } from '@react-native-picker/picker';
-import { router, useLocalSearchParams }  from 'expo-router';
+import { router, useLocalSearchParams, useFocusEffect }  from 'expo-router';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { Ionicons } from '@expo/vector-icons';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { FontAwesome6, Ionicons, MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useSearchParams } from 'expo-router/build/hooks';
 import {Colors} from '../../constants/Colors'
@@ -46,17 +45,9 @@ export default function TabTwoScreen() {
     const auth = getAuth();
     const user = auth.currentUser;
     const todosCollection = collection(db, 'todos');
-
-    //const for location services
-    const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
-    const [hasLocationPermission, setHasLocationPermission] = useState(false);
-    
     //information icon
     const [infoModalVisible, setInfoModalVisible] = useState(false); // Modal for task info
     const [selectedTodoInfo, setSelectedTodoInfo] = useState<TodoItem | null>(null); // Selected todo for info modal
-
-    //edit button 
-    const [editMode, setEditMode] = useState(false);
 
     //Routes to creattask file with autofill information of task
     const handleEdit = async (item:TodoItem) => {
@@ -72,40 +63,26 @@ export default function TabTwoScreen() {
                 travelTime: item.travelTime,
                 distance: item.distance,
                 isEdit: 'true',
-                refresh2: 'true',
             },
         });
         console.log('Task closed, opened createTask to edit');
     };
-    //refresh task list after routing back from createtask
-    useEffect(() => {
-        if (refresh === 'true') {
-            fetchTodos();
-            router.replace('/(tabs)/task')
-        }
-    }, [refresh]);
+    //Refresh the screen
+    useFocusEffect(
+        useCallback(() => {
+            if (user) {
+                fetchTodos();
+            }
+        }, [user])
+    );
 
-    
-    useEffect(() => {
-        fetchTodos();
-        (async () => {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    setHasLocationPermission(false);
-                    return;
-                }
-                setHasLocationPermission(true);
-                let locationData = await Location.getCurrentPositionAsync({});
-                setUserLocation(locationData.coords);
-        })();
-    },[user]);
 
     const fetchTodos = async () => {
         if (user) {
             const q = query(todosCollection, where("userId", "==", user.uid));
             const data = await getDocs(q);
             setTodos(data.docs.map((doc) => ({ ...doc.data(), id: doc.id,  priority: doc.data().priority || 'Low'})));
-            console.log("Fetched task and refreshed");
+            
         } 
         else {
             console.log("No user logged in");
@@ -124,7 +101,7 @@ export default function TabTwoScreen() {
         const todoDoc = doc(db, 'todos', id);
         await deleteDoc(todoDoc);
         fetchTodos();
-        console.log('deleted task Id: ' + id)
+        console.log('deleted task ID: ' + id)
     };
 
     //Routes to createTask file
@@ -180,7 +157,7 @@ export default function TabTwoScreen() {
             />
             <Modal
                 animationType="slide"
-                transparent={true}
+                transparent={true} // Ensure this is set to true
                 visible={infoModalVisible}
                 onRequestClose={hideTodoDetails}>
                 <View style={styles.centeredView}>
@@ -270,7 +247,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 22,
+        backgroundColor: 'rgba(0, 0, 0, 0.0)', // Add semi-transparent background
     },
     infoView: {
         margin: 20,
