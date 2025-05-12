@@ -20,7 +20,7 @@ const index = () => {
   const signIn = async () => {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/(tabs)/(home)/home');
+      if (user) router.replace('/(tabs)/(home)/TodaySchedule');
     } catch (error: any) {
       console.log(error)
       alert('Sign in failed: Wrong email or password');
@@ -53,12 +53,15 @@ const index = () => {
                 secureTextEntry
             />
           </View>
-            <TouchableOpacity style={styles.button} onPress={signIn}>
-                <Text style={styles.buttonText}>Login</Text>
+            <TouchableOpacity style={styles.loginbutton} onPress={signIn}>
+                <Text style={styles.LoginText}>Login</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => router.replace('/Signup')}>
-                <Text style={styles.buttonText}>Sign up</Text>
-            </TouchableOpacity>
+            <View style={styles.signup}>
+              <TouchableOpacity style={styles.signupButton} onPress={() => router.replace('/Signup')}>
+                  <Text style={styles.SignUpText}>Sign up</Text>
+              </TouchableOpacity>
+              <Text style={{fontSize:15, fontWeight:'500'}}>Don't have an account?</Text>
+            </View>
         </SafeAreaView>
       </LinearGradient>
     </GestureHandlerRootView>
@@ -103,22 +106,40 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 15,
   },
-  button: {
+  loginbutton: {
     width: '20%',
     backgroundColor: '#51158C', // Set button background color to blue
     padding: 10, // Add padding inside the button
     borderRadius: 20, // Add border radius for rounded corners
     marginVertical: 10, // Add vertical margin for spacing
   },
-  buttonText: {
+  LoginText: {
     color: '#FFFFFF', // Set button text color to white
-    fontSize: 24, // Increase font size for better readability
+    fontSize: 25, // Increase font size for better readability
     fontWeight: 'bold', // Make the font bold
     textAlign: 'center', // Center the text
     width: '0%',
-    flexDirection: 'row',
     paddingLeft: 50,
     paddingRight: 50,
+  },
+  signup:{
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signupButton: {
+    backgroundColor: '#d7d7d7', // Set button background color to blue
+    padding: 10, // Add padding inside the button
+    borderRadius: 20, // Add border radius for rounded corners
+    marginVertical: 10, // Add vertical margin for spacing
+    marginLeft:0,
+  },
+  SignUpText: {
+    color: '#51158C', // Set button text color to white
+    fontSize: 25, // Increase font size for better readability
+    fontWeight: 'bold', // Make the font bold
+    textAlign: 'center', // Center the text
+    paddingLeft: 40,
+    paddingRight: 40,
   },
 });
 export default index
