@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Alert,SafeAreaView,Platform, StyleSheet,TouchableOpacity,ScrollView } from 'react-native';
+import { Alert,SafeAreaView,Platform, StyleSheet,TouchableOpacity,ScrollView , useColorScheme} from 'react-native';
 import { router }  from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native';
@@ -7,8 +7,13 @@ import { MaterialIcons, MaterialCommunityIcons, Ionicons,Entypo} from '@expo/vec
 import {auth,db} from '../../FirebaseConfig'
 import {getAuth,deleteUser} from "firebase/auth"
 import { collection, query, deleteDoc, where, doc, getDocs } from 'firebase/firestore';
+import {Colors} from "../../constants/Colors"
+import Header from '@/components/ui/HeaderTitle'
+
 
 export default function TabThreeScreen() {
+    const colorscheme = useColorScheme()
+    const theme = colorscheme ? Colors[colorscheme] : Colors.light;
     const navigation = useNavigation();
 
     const signOut = async () => {
@@ -35,20 +40,28 @@ export default function TabThreeScreen() {
         alert('Notification Center failed: '+ error.message);
       }
     }
-    const routeSettings = async () => {
-      try {
-        await router.push('/settings');
-      } catch (error: any) {
-        console.log(error)
-        alert('Settings failed: '+ error.message);
-      }
-    }
     const routeAnalytics = async () => {
       try {
         await router.push('/analytics');
       } catch (error: any) {
         console.log(error)
         alert('Analytics Dashboard failed: '+ error.message);
+      }
+    }
+    const themeSettings = async () => {
+      try {
+        await router.push('/ThemeSwitch');
+      } catch (error: any) {
+        console.log(error)
+        alert('Analytics Dashboard failed: '+ error.message);
+      }
+    }
+    const routeSettings = async () => {
+      try {
+        await router.push('/settings');
+      } catch (error: any) {
+        console.log(error)
+        alert('Settings failed: '+ error.message);
       }
     }
     //Delete the user data from database
@@ -62,6 +75,9 @@ export default function TabThreeScreen() {
           Query to get all the task from todo collection that has the user's ID 
           Deletes all the task associated with the User
           */
+          if (!user) {
+            throw new Error('No authenticated user found');
+          }
           const taskDelete = query(todoscollection, where("userId", "==", user.uid))
           const taskdata= await getDocs(taskDelete)
           const nowdelete = taskdata.docs.map((taskDoc) => deleteDoc(taskDoc.ref))
@@ -102,11 +118,9 @@ export default function TabThreeScreen() {
     }
 
     return (
-    <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
-        <View style={styles.TitleContainer}>
-          <Text style={styles.mainTitle}>Profile</Text>
-        </View>
-        <View style={styles.separator}/>
+    <SafeAreaView style={{flex:1,backgroundColor:'auto'}}>
+        <StatusBar style = 'auto'/>
+        <Header title='Profile' onPress={() => router.replace('/profile')} showIcon={false}/>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.container2}>
             <TouchableOpacity onPress={Editprofile}>
@@ -139,7 +153,7 @@ export default function TabThreeScreen() {
                   <Text style={styles.subTitle}>Collaborate</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress = {themeSettings}>
                 <View style={styles.iconView}>
                   <Ionicons name="color-palette" size={24} color="black" />
                   <Text style={styles.subTitle}>Theme</Text>
@@ -179,13 +193,13 @@ const styles = StyleSheet.create({
   scrollView: {
     padding: 20,
     marginTop:5,
-    backgroundColor:'white',
+    backgroundColor:'auto',
   },
   TitleContainer: {
     flexDirection:'row',
     marginBottom:5,
     justifyContent: 'center',
-    backgroundColor: 'white', // A softer white for a modern, minimalist background
+    backgroundColor: 'auto', // A softer white for a modern, minimalist background
     
   },
   container2: {
@@ -194,7 +208,7 @@ const styles = StyleSheet.create({
     marginTop:-25,
     alignItems: 'flex-start',
     padding: 18, // A softer white for a modern, minimalist background
-    backgroundColor: '', // A softer white for a modern, minimalist background
+    backgroundColor: 'auto', // A softer white for a modern, minimalist background
     marginBottom: 5,
   },
   mainTitle: {
@@ -204,14 +218,14 @@ const styles = StyleSheet.create({
   },
   iconView:{
     flexDirection:'row',
-    backgroundColor:'',
+    backgroundColor:'auto',
     justifyContent:'center',
     alignContent:'center',
     gap:10,
   },
   notifyIcon:{
     flexDirection:'row',
-    backgroundColor:'',
+    //backgroundColor:'',
   },
   subTitle: {
     fontSize: 24,
