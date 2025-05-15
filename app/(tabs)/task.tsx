@@ -3,7 +3,7 @@ import React, { useState, useEffect , useCallback} from 'react';
 import { db } from '../../FirebaseConfig';
 import { Picker } from '@react-native-picker/picker';
 import { router, useLocalSearchParams, useFocusEffect }  from 'expo-router';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { FontAwesome6, Ionicons, MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import * as Location from 'expo-location';
@@ -93,6 +93,20 @@ export default function TabTwoScreen() {
     const updateTodo = async (id: string, completed: any) => {
         const todoDoc = doc(db, 'todos', id);
         await updateDoc(todoDoc, { completed: !completed });
+        const data = (await getDoc(todoDoc)).data();
+        if (!data) {
+            console.log('No such document!');
+            return;
+        }
+        if (completed) {
+            if (data.hasOwnProperty('tasksCompleted')) {
+                await updateDoc(todoDoc, { tasksCompleted: data.tasksCompleted + 1 });
+            }
+            else {
+                await updateDoc(todoDoc, { tasksCompleted: 1 });
+            }
+        }
+
         fetchTodos();
     };
 
@@ -107,7 +121,7 @@ export default function TabTwoScreen() {
     //Routes to createTask file
     const toggleMenu = async () => {
         try {
-            await router.push('/createTask');
+            await router.push("/createTask");
             console.log('Task closed, opened createTask');
         }
         catch (error: any) {

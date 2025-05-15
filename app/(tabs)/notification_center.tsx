@@ -5,7 +5,7 @@ import Card from "../../components/ui/card";
 import Button from "../../components/ui/button";
 import { AlignRight, Bell, CheckCircle, Trash2 } from "lucide-react-native";
 import { auth, db } from '../../FirebaseConfig'
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, query, where, Timestamp } from 'firebase/firestore';
 import {View, Text} from '../../components/Themed'
 
 //Data fields required for each notification
@@ -66,24 +66,28 @@ const NotificationCenter: React.FC = () => {
       id: doc.id,
       message: doc.data().message,
       read: doc.data().read,
-      userId: doc.data().userId
+      userId: doc.data().userId,
+      date: doc.data().date,
+      time: doc.data().time
     })) as Notification[];
-    setNotifications(fetchedNotifications);
+    setNotifications(fetchedNotifications); //Set the notifications state to the fetched notifications
   };
 
   useEffect(() => {
     fetchNotifs();
   }, []);
 
-  //Function to add a new notification with temporary placeholder message
-  const addNotification = async (message: string) => {
+  //Function to add a new notification with temporary placeholder message (deprecated, but still usable for testing)
+  const addNotification = async (message: string, date: string, time: string) => {
     const tempid = Date.now().toString();
     const docRef = doc(collection(db, 'notifications'), tempid);
             var data = {
               id: tempid,
               message: message,
               read: false,
-              userId: auth.currentUser?.uid
+              userId: auth.currentUser?.uid,
+              date: date,
+              time: time
             }
     await setDoc(docRef, data);
     fetchNotifs();
@@ -108,7 +112,11 @@ const NotificationCenter: React.FC = () => {
                   <Text className="text-lg">{item.message}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center", flex: 1, justifyContent: "space-between" }}>
                     {!item.read && (
-                        <TouchableOpacity 
+                        <TouchableOpacity
+                          accessible={true}
+                          accessibilityLabel="Mark notification as read"
+                          accessibilityHint="Marks the notification as read"
+                          accessibilityRole="button"
                           onPress={() => markAsRead(item.id)}
                           style={{ flexDirection:"row", alignItems:"center", marginRight: 8 }}
                         >
@@ -117,6 +125,10 @@ const NotificationCenter: React.FC = () => {
                         </TouchableOpacity>
                     )}
                       <TouchableOpacity
+                        accessible={true}
+                        accessibilityLabel="Delete notification"
+                        accessibilityHint="Deletes the notification"
+                        accessibilityRole="button"
                         onPress={() => deleteNotification(item.id)}
                         onPressIn={() => setHovered(item.id)}
                         onPressOut={() => setHovered(null)}

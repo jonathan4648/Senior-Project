@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../FirebaseConfig';
 import { Picker } from '@react-native-picker/picker';
 import { router, useLocalSearchParams }  from 'expo-router';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, setDoc, deleteDoc, doc, query, where, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import * as Location from 'expo-location';
@@ -103,6 +103,29 @@ export default function CreateTask() {
         setTravelTime('');
         setDistance('');
         fetchTodos();
+
+        //Create notification for the task
+        const tempid = Date.now().toString();
+        const docRef = doc(collection(db, 'notifications'), tempid);
+            var data = {
+                id: tempid,
+                message: task + " scheduled for " + selectedDate + " at " + time,
+                read: false,
+                userId: auth.currentUser?.uid,
+                time: time
+            }
+        await setDoc(docRef, data);
+
+        const docRef2 = doc(collection(db, 'users'), user.uid);
+        const userDoc = await getDoc(docRef2);
+        const data2 = userDoc.data();
+        if (data2 && data2.hasOwnProperty('totalTasks')) {
+            await updateDoc(docRef2, { totalTasks: data2.totalTasks + 1 });
+        }
+        else {
+            await updateDoc(docRef2, { totalTasks: 1 });
+        }        
+
     } else {
         console.log("No user logged in");
         fetchTodos();

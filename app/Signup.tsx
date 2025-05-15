@@ -29,8 +29,21 @@ const index = () => {
             email: email,
             Firstname: Firstname,
             Lastname: Lastname,
+            tasksCompleted: 0
         }
         await setDoc(docRef, data);
+
+        //Create default notification when user signs up
+        const tempid = Date.now().toString();
+        const docRef2 = doc(collection(db, 'notifications'), tempid);
+                var data2 = {
+                  id: tempid,
+                  message: "Welcome to the app!",
+                  read: false,
+                  userId: auth.currentUser?.uid
+                }
+        await setDoc(docRef2, data2);
+        
         router.replace('/(tabs)/(home)/TodaySchedule');
       }
     } catch (error: any) {
@@ -54,6 +67,7 @@ const index = () => {
             placeholderTextColor={'black'}
             value={Firstname} 
             onChangeText={setFname}
+            accessible={true}
           />
         </View>
         <View style={styles.inputbox}>
@@ -87,10 +101,10 @@ const index = () => {
           secureTextEntry
         />
         </View>
-        <TouchableOpacity style={styles.SignUpbutton} onPress={signUp}>
+        <TouchableOpacity accessible={true} style={styles.SignUpbutton} onPress={signUp}>
           <Text style={styles.LoginText}>Sign up</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.LoginButton} onPress={() => router.replace('/')}>
+        <TouchableOpacity accessible={true} style={styles.LoginButton} onPress={() => router.replace('/')}>
           <Text style={styles.SignUpText}>Login</Text>
         </TouchableOpacity>
         <Text>Already have an account?</Text>
