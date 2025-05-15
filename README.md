@@ -139,9 +139,13 @@ Distributed under the Unlicense License. See `LICENSE.txt` for more information.
 ## Contact
 
 Jonathan Sanchez
+
 Brenden Bilson
+
 Gael Martinez
+
 Daniel Neri
+
 Kendrick Ugwu
 
 Project Link: https://github.com/jonathan4648/Senior-Project
