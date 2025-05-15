@@ -148,8 +148,6 @@ Daniel Neri
 
 Kendrick Ugwu
 
-Project Link: https://github.com/jonathan4648/Senior-Project
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
