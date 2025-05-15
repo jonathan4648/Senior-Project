@@ -50,7 +50,7 @@ export default function RewardsTabScreen() {
           const today = new Date().toISOString().split('T')[0];
 
           if (lastLoginDate !== today) {
-            points += 10; // Give daily login bonus
+            points += 1000; // Give daily login bonus
             await AsyncStorage.setItem(`points_${userId}`, points.toString());
             await AsyncStorage.setItem(`lastLogin_${userId}`, today);
 
@@ -233,7 +233,7 @@ export default function RewardsTabScreen() {
         {/* Daily Bonus Banner */}
         {bonusVisible && (
           <Animated.View style={[styles.bonusBanner, { opacity: bonusFadeAnim }]}>
-            <Text style={styles.bonusText}>+10 Daily Bonus 🎉</Text>
+            <Text style={styles.bonusText}>+1000 Daily Bonus 🎉</Text>
           </Animated.View>
         )}
       </View>
