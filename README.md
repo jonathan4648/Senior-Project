@@ -18,13 +18,6 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![Unlicense License][license-shield]][license-url]
-
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -32,16 +25,16 @@
   <h3 align="center">ToDo Dynamic Daily Planner</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    Intelligent planning. Real-time balance.
     <br />
     <a href="https://github.com/jonathan4648/Senior-Project"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/jonathan4648/Senior-Project">View Demo</a>
     &middot;
-    <a href="https://github.com/jonathan4648/Senior-Project/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/jonathan4648/Senior-Project/issues/new?labels=bug">Report Bug</a>
     &middot;
-    <a href="https://github.com/jonathan4648/Senior-Project/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/jonathan4648/Senior-Project/issues/new?labels=enhancement">Request Feature</a>
   </p>
 </div>
 
@@ -100,20 +93,14 @@ This section should list any major frameworks/libraries used to bootstrap your p
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
 * npm
   ```sh
   npm install npm@latest -g
   ```
 
 ### Installation
-
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
 
 1. Clone the repo
    ```sh
@@ -136,10 +123,6 @@ _Below is an example of how you can instruct your audience on installing and set
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -155,9 +138,13 @@ Distributed under the Unlicense License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Jonathan Sanchez
+Brenden Bilson
+Gael Martinez
+Daniel Neri
+Kendrick Ugwu
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: https://github.com/jonathan4648/Senior-Project
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
