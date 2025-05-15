@@ -50,7 +50,7 @@ export default function RewardsTabScreen() {
           const today = new Date().toISOString().split('T')[0];
 
           if (lastLoginDate !== today) {
-            points += 10; // Give daily login bonus
+            points += 500; // Give daily login bonus
             await AsyncStorage.setItem(`points_${userId}`, points.toString());
             await AsyncStorage.setItem(`lastLogin_${userId}`, today);
 
