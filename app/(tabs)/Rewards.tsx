@@ -233,7 +233,7 @@ export default function RewardsTabScreen() {
         {/* Daily Bonus Banner */}
         {bonusVisible && (
           <Animated.View style={[styles.bonusBanner, { opacity: bonusFadeAnim }]}>
-            <Text style={styles.bonusText}>+1000 Daily Bonus 🎉</Text>
+            <Text style={styles.bonusText}>+1000 Sign Up Bonus 🎉</Text>
           </Animated.View>
         )}
       </View>
