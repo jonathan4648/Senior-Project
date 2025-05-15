@@ -39,7 +39,7 @@ const NotificationCenter: React.FC = () => {
       await deleteDoc(doc(db, 'notifications', document.id));
       console.log(`Deleted document with ID: ${document.id}`);
     });
-    fetchNotifs();
+    fetchNotifs();  //Refresh notifications after deletion
   };
 
   //Function to mark notification as read
@@ -51,9 +51,9 @@ const NotificationCenter: React.FC = () => {
         read: true, // Dynamically update the field
       });
   
-      console.log(`Document ${id} updated: read => true`);
+      console.log(`Document ${id} updated: read => true`);  //Log success message
     } catch (error) {
-      console.error("Error updating document:", error);
+      console.error("Error updating document:", error); //Log error message
     }
     fetchNotifs();
   };
