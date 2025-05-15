@@ -104,7 +104,7 @@ This section should list any major frameworks/libraries used to bootstrap your p
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/jonathan4648/Senior-Project.git
    ```
 2. Install NPM packages
    ```sh
@@ -112,7 +112,7 @@ This section should list any major frameworks/libraries used to bootstrap your p
    ```
 3. Change git remote url to avoid accidental pushes to base project
    ```sh
-   git remote set-url origin github_username/repo_name
+   git remote set-url origin jonathan4648/Senior-Project
    git remote -v # confirm the changes
    ```
 
